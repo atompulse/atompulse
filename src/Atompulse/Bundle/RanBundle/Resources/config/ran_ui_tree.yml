@@ -1,0 +1,15 @@
+# Group are organized in collections (i.e. A,B); collection names have no significance
+# A collection can have either 1 'group' or a list of 'groups'
+# Its posible to have a collection which contains a group that has no items (roles)
+parameters:
+  ran_ui_tree:
+    A:
+      label: Module A
+      group: GROUP_X
+    B:
+      label: Module Collection B
+      groups:
+        GROUP_Z:
+          label: Module Z
+        GROUP_Y:
+          label: Module Y

@@ -1,0 +1,19 @@
+#ran_homepage:
+#    path:     /hello/{name}
+#    defaults: { _controller: RanBundle:Default:index }
+
+#ajax_relogin:
+#  path:     /login_check
+#  defaults: { _controller: FOSUserBundle:Security:check }
+#  requirements:
+#    _method:  POST
+#  options:
+#    expose: true
+#
+#login_exposed:
+#  path:     /login
+#  defaults: { _controller: FOSUserBundle:Security:login }
+#  requirements:
+#    _method:  GET|POST
+#  options:
+#    expose: true

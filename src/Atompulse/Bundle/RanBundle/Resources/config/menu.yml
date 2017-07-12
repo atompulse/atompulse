@@ -1,0 +1,32 @@
+# menu customization
+# menu keys are not used for any purpose
+parameters:
+  main_menu:
+    MENU_KEY_A:
+      label: Some nice label
+      css: css-class
+      image: some-image.png
+      items:
+        item_key_0:
+          route: route_name_a
+          label: Item label for route a
+        item_key_1:
+          route: route_name_b
+          label: Item label for route b
+        item_key_n:
+          route: route_name_n
+          label: Item label for route n
+    MENU_KEY_B:
+      label: Some nice label
+      css: css-class
+      image: some-image.png
+      items:
+        item_key_0:
+          route: route_name_c
+          label: Item label for route c
+        item_key_1:
+          route: route_name_d
+          label: Item label for route d
+        item_key_m:
+          route: route_name_m
+          label: Item label for route m

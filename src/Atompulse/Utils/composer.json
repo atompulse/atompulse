@@ -1,0 +1,23 @@
+{
+  "name": "atompulse/utils",
+  "type": "library",
+  "description": "Atompulse Utils",
+  "keywords": [],
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "require": {
+    "symfony/symfony": "3.*",
+    "league/json-guard": "^0.5.1"
+  },
+  "require-dev": {
+    "symfony/symfony": "3.*",
+    "league/json-guard": "^0.5.1"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

@@ -1,0 +1,28 @@
+{
+  "name": "atompulse/atompulse",
+  "description": "Atompulse",
+  "type": "metapackage",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/atompulse/PropelBundle",
+      "no-api": true
+    }
+  ],
+  "require": {
+    "symfony/symfony": "3.*",
+    "league/json-guard": "^0.5.1",
+    "fzaninotto/faker": "^1.6@dev",
+    "propel/propel-bundle": "dev-build-properties-fix",
+    "sokil/php-mongo": "1.*"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
