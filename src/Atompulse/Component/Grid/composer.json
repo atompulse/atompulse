@@ -1,0 +1,20 @@
+{
+  "name": "atompulse/domain",
+  "description": "Atompulse Data Grid Component",
+  "type": "library",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "require": {
+    "atompulse/data": "dev-master",
+    "symfony/http-foundation": "3.*",
+    "propel/propel-bundle": "dev-build-properties-fix",
+    "sokil/php-mongo": "1.*"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
