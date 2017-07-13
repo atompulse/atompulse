@@ -1,0 +1,17 @@
+{
+  "name": "atompulse/domain",
+  "description": "Atompulse Business Domain Data Component",
+  "type": "library",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "require": {
+    "atompulse/data": "dev-master"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
