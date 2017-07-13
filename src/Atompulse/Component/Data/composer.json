@@ -9,6 +9,14 @@
       "email": "petru.cojocar@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Component\\Data\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
   "require": {
     "symfony/validator": "3.*",
     "symfony/dependency-injection": "3.*",
