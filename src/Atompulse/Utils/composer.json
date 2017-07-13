@@ -10,13 +10,19 @@
       "email": "petru.cojocar@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Utils\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
   "require": {
-    "symfony/symfony": "3.*",
-    "league/json-guard": "^0.5.1"
+    "symfony/symfony": "3.*"
   },
   "require-dev": {
-    "symfony/symfony": "3.*",
-    "league/json-guard": "^0.5.1"
+    "symfony/symfony": "3.*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

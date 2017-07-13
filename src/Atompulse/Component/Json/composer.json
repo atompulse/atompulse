@@ -3,6 +3,14 @@
   "description": "Atompulse Json Schema Validator Component",
   "type": "library",
   "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Component\\Data\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
   "require": {
     "php": ">=5.6",
     "league/json-guard": "^0.5.1"

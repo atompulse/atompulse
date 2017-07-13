@@ -9,6 +9,14 @@
       "email": "petru.cojocar@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Component\\Domain\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
   "require": {
     "atompulse/data": "dev-master"
   },
