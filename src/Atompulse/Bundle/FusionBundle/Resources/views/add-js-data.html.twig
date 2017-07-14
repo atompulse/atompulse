@@ -1,0 +1,6 @@
+<script type="text/javascript" data-id="fusion.data">
+    // inject passed data into namespaces
+    {% for nsDomain, dataStruct in data %}
+        Fusion.registerNsObject('{{ nsDomain }}', {{ dataStruct|raw }});
+    {% endfor %}
+</script>

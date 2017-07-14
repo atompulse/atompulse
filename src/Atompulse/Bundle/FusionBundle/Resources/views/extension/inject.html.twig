@@ -1,0 +1,5 @@
+{% if contentType == 'js' %}
+<script type="text/javascript">{{ content|raw }}</script>
+{% else %}
+<style>{{ content|raw }}</style>
+{% endif%}

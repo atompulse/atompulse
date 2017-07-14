@@ -1,0 +1,8 @@
+<script type="text/javascript">
+    head.load(
+        {% for assetGroup, asset in assets %}
+        { '{{ assetGroup }}': '{{ asset }}' }
+        {% if not loop.last %}, {% endif %}
+        {% endfor %});
+</script>
+
