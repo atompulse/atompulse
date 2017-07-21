@@ -40,8 +40,8 @@ trait DataContainer
 
     /**
      * Magical setter method
-     * @param $property string
-     * @param $value mixed Value of field
+     * @param string $property
+     * @param mixed $value Value of property
      * @throws PropertyNotValidException Rise if field is not defined into validProperties.
      * @throws PropertyValueNotValidException Rise if field value type is inconsistent
      * @return bool
@@ -68,9 +68,9 @@ trait DataContainer
 
     /**
      * Getter magical method
-     * @param $property mixed Property name
-     * @return mixed Return a value of property
-     * @throws PropertyNotValidException If property does exists
+     * @param string $property
+     * @return mixed
+     * @throws PropertyNotValidException
      */
     public function &__get($property)
     {
@@ -110,10 +110,10 @@ trait DataContainer
 
     /**
      * Check if a property is valid
-     * @param $property
+     * @param string $property
      * @return bool
      */
-    public function isValidProperty($property)
+    public function isValidProperty(string $property)
     {
         if (!empty($this->validProperties) && !array_key_exists($property, $this->validProperties)) {
             return false;
@@ -131,16 +131,16 @@ trait DataContainer
      *
      * @see To get a normalize result set use ->normalizeData method
      *
-     * @param bool|false $property
+     * @param string|null $property
      * @return array [key => value] Data structure
      * @throws PropertyNotValidException
      * @throws PropertyValueNotValidException
      */
-    public function toArray($property = false)
+    public function toArray(string $property = null)
     {
         $properties = $this->properties;
 
-        if ($property) {
+        if (!is_null($property)) {
             if ($this->isValidProperty($property)) {
                 if (is_array($this->properties[$property]) ||
                     $this->properties[$property] instanceof DataContainerInterface ||
@@ -195,7 +195,7 @@ trait DataContainer
      * @return $this
      * @throws PropertyValueNotValidException
      */
-    public function fromArray(array $data, $skipInvalidProperties = true)
+    public function fromArray(array $data, bool $skipInvalidProperties = true)
     {
         foreach ($data as $property => $value) {
             if ($skipInvalidProperties && !$this->isValidProperty($property)) {
@@ -221,18 +221,18 @@ trait DataContainer
      * - handles default value resolution
      * - handles DataContainerInterface property values normalization
      * - return simple array with key->value OR multidimensional array with key->array but never object values
-     * @param bool|false $property
+     * @param string|null $property Normalize a specific property of the container
      * @return array|mixed
      * @throws PropertyNotValidException
      * @throws PropertyValueNormalizationException
      */
-    public function normalizeData($property = false)
+    public function normalizeData(string $property = null)
     {
         $data = [];
 
         $validProperties = $this->validProperties;
 
-        if ($property) {
+        if (!is_null($property)) {
             if ($this->isValidProperty($property)) {
                 return $this->normalizeValue($this->$property);
             } else {
@@ -240,8 +240,8 @@ trait DataContainer
             }
         }
 
-        foreach ($validProperties as $property => $types) {
-            $data[$property] = $this->normalizeValue($this->$property);
+        foreach ($validProperties as $validProperty => $types) {
+            $data[$validProperty] = $this->normalizeValue($this->$validProperty);
         }
 
         return $data;
@@ -279,12 +279,12 @@ trait DataContainer
 
     /**
      * Check types
-     * @param $property
+     * @param string $property
      * @param $value
      * @return bool
      * @throws PropertyValueNotValidException
      */
-    private function checkTypes($property, $value)
+    private function checkTypes(string $property, $value)
     {
         $requiredTypes = $this->getDefinedTypes($property);
 
@@ -345,10 +345,10 @@ trait DataContainer
 
     /**
      * Get defined types for a property
-     * @param $property
+     * @param string $property
      * @return array
      */
-    private function getDefinedTypes($property)
+    private function getDefinedTypes(string $property)
     {
         $typeSpecification = $this->validProperties[$property];
 
