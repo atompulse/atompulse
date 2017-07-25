@@ -299,32 +299,34 @@ trait DataContainer
 
         if (count($requiredTypes)) {
             // object check
-            if ($actualValueType == 'object' && !in_array(get_class($value), $requiredTypes)) {
-                throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is: [' . get_class($value).']');
+            if ($actualValueType == 'object') {
+                if (!in_array(get_class($value), $requiredTypes)) {
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is instance of : [' . get_class($value).']');
+                }
             } else {
                 // primitive type value
-                $isValidType = true;
+                $isValidType = false;
                 foreach ($requiredTypes as $type) {
-                    if ($type === 'object' && !is_object($value)) {
-                        $isValidType = false;
+                    if ($type === 'object' && is_object($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'array' && !is_array($value)) {
-                        $isValidType = false;
+                    } elseif ($type == 'array' && is_array($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'string' && !is_string($value)) {
-                        $isValidType = false;
+                    } elseif ($type == 'string' && is_string($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'number' && !is_numeric($value)) {
-                        $isValidType = false;
+                    } elseif ($type == 'number' && is_numeric($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'integer' && !is_int($value)) {
-                        $isValidType = false;
+                    } elseif ($type == 'integer' && is_int($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'boolean' && !is_bool($value)) {
-                        $isValidType = false;
+                    } elseif ($type == 'boolean' && is_bool($value)) {
+                        $isValidType = true;
                         break;
-                    } elseif ($type == 'null' && !$value === null) {
-                        $isValidType = false;
+                    } elseif ($type == 'null' && $value === null) {
+                        $isValidType = true;
                         break;
                     }
                 }

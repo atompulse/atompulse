@@ -8,6 +8,7 @@ $dateAdded = new \DateTime('2017-07-07');
 $category = new model\CategoryData(['name' => 'Sedan']);
 
 $data = [
+    'id' => null,
 //    'date_added' => $dateAdded, // complex type
     'date_added' => '2017-07-07', // string
 //    'date_added' => null,

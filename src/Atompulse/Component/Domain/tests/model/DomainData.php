@@ -36,7 +36,6 @@ class DomainData implements DataContainerInterface
         ];
 
         $this->defaultValues = [
-            "id" => 901256,
             "products" => null,
         ];
 
