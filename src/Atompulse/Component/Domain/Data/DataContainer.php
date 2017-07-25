@@ -16,12 +16,12 @@ use Atompulse\Component\Data\Transform;
 trait DataContainer
 {
     /**
-     * @var array Array of valid properties of container and its types
+     * @var array Array to describe the valid properties of container and its types
      * @example:
      *   "code" => "integer|0",
      *   "name" => "string",
-     *   "date_added" => "\DateTime",
-     *   "category" => "\SomeClassImplementingDataContainerInterface",
+     *   "date_added" => "DateTime",
+     *   "category" => "FullyQualifiedClassImplementingDataContainerInterface",
      *   "price" => "double",
      *   "products" => "array|null",
      */
@@ -34,17 +34,17 @@ trait DataContainer
     protected $defaultValues = [];
 
     /**
-     * @var array Array of data of all valid properties.
+     * @var array Array to store data of all valid properties.
      */
     protected $properties = [];
 
     /**
-     * Magical setter method
+     * @inheritdoc
      * @param string $property
      * @param mixed $value Value of property
-     * @throws PropertyNotValidException Rise if field is not defined into validProperties.
-     * @throws PropertyValueNotValidException Rise if field value type is inconsistent
-     * @return bool
+     * @throws PropertyNotValidException Thrown if property is not defined into validProperties.
+     * @throws PropertyValueNotValidException Thrown if property value type is inconsistent with declaration
+     * @return void
      */
     public function __set($property, $value)
     {
@@ -52,22 +52,22 @@ trait DataContainer
             throw new PropertyNotValidException("Property [$property] not valid for this model [".__CLASS__."]");
         }
 
-        // check type and do assignment
-        if ($this->checkTypes($property, $value)) {
-            // Check if there's a specialized setter method
-            $setterMethod = "set".Transform::camelize($property);
-            if (method_exists($this, $setterMethod)) {
-                return $this->$setterMethod($value);
-            } else {
-                $this->properties[$property] = $value;
-            }
+        // Check if there's a specialized setter method
+        $setterMethod = "set".Transform::camelize($property);
+        if (method_exists($this, $setterMethod)) {
+            $this->$setterMethod($value);
+        } else {
+            $this->properties[$property] = $value;
         }
 
-        return true;
+        // perform property value type checking
+        // performed last in order to be able to test the validity
+        // of property values that had been set using a custom setter
+        $this->checkTypes($property, $this->properties[$property]);
     }
 
     /**
-     * Getter magical method
+     * @inheritdoc
      * @param string $property
      * @return mixed
      * @throws PropertyNotValidException
@@ -77,16 +77,23 @@ trait DataContainer
         if (!$this->isValidProperty($property)) {
             throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
         }
-        // Check if there's a specialized getter method
+
+        $propertyValue = null;
+
+        // specialized getter method
         $getterMethod = "get".Transform::camelize($property);
         if (method_exists($this, $getterMethod)) {
-            return $this->$getterMethod();
-        }
-        if (!array_key_exists($property, $this->properties)) {
-            $this->properties[$property] = array_key_exists($property, $this->defaultValues) ? $this->defaultValues[$property] : null;
+            $propertyValue = $this->$getterMethod();
+        } else {
+            // default value when property was not set
+            if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
+                $propertyValue = $this->defaultValues[$property];
+            } elseif (isset($this->properties[$property])) {
+                $propertyValue = $this->properties[$property];
+            }
         }
 
-        return $this->properties[$property];
+        return $propertyValue;
     }
 
     /**
@@ -127,9 +134,9 @@ trait DataContainer
      * property items in their respective DataContainerInterface state if the values are objects
      *
      * This method will ONLY return the current state of the data with object and primitives,
-     * it will not return default values or property values that has not been set.
+     * it will not return default values or property values that have not been set.
      *
-     * @see To get a normalize result set use ->normalizeData method
+     * @see To get a normalized result set use ::normalizeData method
      *
      * @param string|null $property
      * @return array [key => value] Data structure
@@ -160,6 +167,7 @@ trait DataContainer
         return array_map(
             function ($item) {
                 if (is_object($item)) {
+                    // default object->primitive type conversion for DateTime objects
                     if (get_class($item) === "DateTime") {
                         return $item->format("Y-m-d");
                     }
@@ -193,7 +201,6 @@ trait DataContainer
      * @param array $data
      * @param bool|true $skipInvalidProperties
      * @return $this
-     * @throws PropertyValueNotValidException
      */
     public function fromArray(array $data, bool $skipInvalidProperties = true)
     {
@@ -201,15 +208,7 @@ trait DataContainer
             if ($skipInvalidProperties && !$this->isValidProperty($property)) {
                 continue;
             } else {
-                if (is_object($value)) {
-                    if (get_class($value) === "DateTime") {
-                        $this->$property = $value->format("Y-m-d");
-                    } else {
-                        throw new PropertyValueNotValidException("Input type error: Property [$property] accepts only [".implode(',', $this->getDefinedTypes($property)).'], but given value is: [' . get_class($value).']');
-                    }
-                } else {
-                    $this->$property = $value;
-                }
+                $this->$property = $value;
             }
         }
 
@@ -278,9 +277,9 @@ trait DataContainer
     }
 
     /**
-     * Check types
+     * Check property value type
      * @param string $property
-     * @param $value
+     * @param mixed $value
      * @return bool
      * @throws PropertyValueNotValidException
      */
@@ -288,54 +287,49 @@ trait DataContainer
     {
         $requiredTypes = $this->getDefinedTypes($property);
 
-        $actualType = gettype($value);
+        $actualValueType = gettype($value);
 
-        if ($actualType == 'double') {
-            $actualType = is_int($value) ? 'integer' : 'number';
+        if ($actualValueType == 'double') {
+            $actualValueType = is_int($value) ? 'integer' : 'number';
         } else {
-            if ($actualType == 'NULL') {
-                $actualType = 'null';
+            if ($actualValueType == 'NULL') {
+                $actualValueType = 'null';
             }
         }
 
         if (count($requiredTypes)) {
-            $isValidType = true;
-            foreach ($requiredTypes as $type) {
-                if ($type === 'object' && !is_object($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'array' && !is_array($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'string' && !is_string($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'number' && !is_numeric($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'integer' && !is_int($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'boolean' && !is_bool($value)) {
-                    $isValidType = false;
-                    break;
-                } elseif ($type == 'null' && !$value === null) {
-                    $isValidType = false;
-                    break;
-                }
-            }
-
-            if ($isValidType) {
-                return true;
-            }
-
-            if ($actualType == 'object') {
-                if (!in_array(get_class($value), $requiredTypes)) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is: [' . get_class($value).']');
-                }
+            // object check
+            if ($actualValueType == 'object' && !in_array(get_class($value), $requiredTypes)) {
+                throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is: [' . get_class($value).']');
             } else {
-                if (!in_array($actualType, $requiredTypes)) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes)."], but given value is: [$actualType]");
+                // primitive type value
+                $isValidType = true;
+                foreach ($requiredTypes as $type) {
+                    if ($type === 'object' && !is_object($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'array' && !is_array($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'string' && !is_string($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'number' && !is_numeric($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'integer' && !is_int($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'boolean' && !is_bool($value)) {
+                        $isValidType = false;
+                        break;
+                    } elseif ($type == 'null' && !$value === null) {
+                        $isValidType = false;
+                        break;
+                    }
+                }
+                if (!$isValidType) {
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes)."], but given value is: [$actualValueType]");
                 }
             }
         }

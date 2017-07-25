@@ -14,7 +14,7 @@
       "Atompulse\\Component\\Domain\\": ""
     },
     "exclude-from-classmap": [
-      "/Tests/"
+      "/tests/"
     ]
   },
   "require": {
