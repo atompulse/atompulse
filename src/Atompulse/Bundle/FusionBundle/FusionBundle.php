@@ -1,6 +1,6 @@
 <?php
 
-namespace Atompulse\FusionBundle;
+namespace Atompulse\Bundle\FusionBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

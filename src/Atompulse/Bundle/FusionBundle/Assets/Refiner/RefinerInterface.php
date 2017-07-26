@@ -1,9 +1,9 @@
 <?php
-namespace Atompulse\FusionBundle\Compiler\Refiner;
+namespace Atompulse\Bundle\FusionBundle\Assets\Refiner;
 
 /**
  * Interface RefinerInterface
- * @package Atompulse\FusionBundle\Compiler\Refiner
+ * @package Atompulse\Bundle\FusionBundle\Compiler\Refiner
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

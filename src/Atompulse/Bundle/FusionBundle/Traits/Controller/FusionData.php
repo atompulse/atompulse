@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\FusionBundle\Traits\Controller;
+namespace Atompulse\Bundle\FusionBundle\Traits\Controller;
 
 /**
  * Fusion

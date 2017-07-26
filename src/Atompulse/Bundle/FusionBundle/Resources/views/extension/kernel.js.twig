@@ -1,0 +1,147 @@
+<script type="application/javascript" data-id="fusion.kernel">
+    /**
+     * Fusion Kernel
+     * @author Petru Cojocar <petru.cojocar@gmail.com>.
+     * @type Object
+     */
+    var Fusion = Fusion || {};
+
+    /**
+     * Merge objects
+     * @param {Object} target
+     * @param {Object} source
+     * @returns {target}
+     */
+    Fusion._mergeObjects = function (target, source) {
+        if (typeof target !== 'object') {
+            target = {};
+        }
+        for (var property in source) {
+            if (source.hasOwnProperty(property)) {
+                var sourceProperty = source[property];
+                if (typeof(sourceProperty) === 'object') {
+                    target[property] = Fusion._mergeObjects(target[property], sourceProperty);
+                    continue;
+                }
+                target[property] = sourceProperty;
+            }
+        }
+        for (var a = 2, l = arguments.length; a < l; a++) {
+            Fusion._mergeObjects(target, arguments[a]);
+        }
+
+        return target;
+    };
+
+    /**
+     * Register whole data structures into the specific nsDomain
+     * @param {string} nsDomain
+     * @param {Object|Array|int|string|boolean} nsDomainData
+     * @param {Object} nsContainer
+     * @returns {void}
+     */
+    Fusion.registerNsObject = function (nsDomain, nsDomainData, nsContainer) {
+
+        nsContainer = typeof(nsContainer) === 'undefined' ? window : nsContainer;
+
+        if (nsDomain.indexOf(".") > -1) {
+            var nsClassComponents = nsDomain.split('.');
+            var nsStruct = nsContainer[nsClassComponents[0]] = nsContainer[nsClassComponents[0]] || {};
+
+            for (var i = 1; i <= nsClassComponents.length - 1; i++) {
+                nsStruct[nsClassComponents[i]] = nsStruct[nsClassComponents[i]] || {};
+                nsStruct = nsStruct[nsClassComponents[i]];
+            }
+
+            for (var dset in nsDomainData) {
+                nsStruct[dset] = nsDomainData[dset];
+            }
+        } else {
+            if (typeof(nsContainer[nsDomain]) !== 'undefined') {
+                nsContainer[nsDomain] = Fusion._mergeObjects(nsContainer[nsDomain], nsDomainData);
+            } else {
+                nsContainer[nsDomain] = nsDomainData;
+            }
+        }
+    };
+
+    /**
+     * Retrieve whole data structures from the specific nsDomain/nsContainer
+     * @param {string} nsDomain
+     * @param {object} nsContainer
+     * @returns {void}
+     */
+    Fusion.retrieveNsObject = function (nsDomain, nsContainer) {
+
+        nsContainer = typeof(nsContainer) === 'undefined' ? window : nsContainer;
+        var nsClassComponents = nsDomain.split('.');
+
+        if (typeof(nsContainer[nsClassComponents[0]]) !== 'undefined') {
+            var nsObject = nsContainer[nsClassComponents[0]];
+            for (var i = 1; i <= nsClassComponents.length - 1; i++) {
+                if (typeof(nsObject[nsClassComponents[i]]) !== 'undefined') {
+                    nsObject = nsObject[nsClassComponents[i]];
+                } else {
+                    throw "[Fusion.retrieveNsObject] NsObject Retrieval failed for [" + nsDomain + "]";
+                }
+            }
+
+            return nsObject;
+        }
+
+        return;
+    };
+
+    /**
+     * Fusion Notification Center
+     */
+    Fusion.registerNsObject('Fusion.NotificationCenter',
+    {
+        /**
+         * Notification dispatch table
+         */
+        central: {},
+
+        /**
+         * Subscribe to an event
+         */
+        subscribe: function (event, subject, callback, params) {
+            Fusion.NotificationCenter.central[event] = Fusion.NotificationCenter.central[event] || {};
+            Fusion.NotificationCenter.central[event][subject] = Fusion.NotificationCenter.central[event][subject] || {};
+            Fusion.NotificationCenter.central[event][subject].subcribers = Fusion.NotificationCenter.central[event][subject].subcribers || [];
+            Fusion.NotificationCenter.central[event][subject].subcribers.push({callback: callback, args: params});
+        },
+
+        /**
+         * Dispatch an event
+         */
+        dispatch: function (event, subject, eventParams) {
+            if (typeof(Fusion.NotificationCenter.central[event]) !== 'undefined' &&
+                    typeof(Fusion.NotificationCenter.central[event][subject]) !== 'undefined') {
+                for (var subscriber in Fusion.NotificationCenter.central[event][subject].subcribers) {
+                    subscriber.callback.apply(subscriber.callback, [subscriber.args, eventParams]);
+                    Fusion.NotificationCenter.central[event][subject].subcribers.pop();
+                }
+            }
+        }
+    });
+
+    /**
+     * Fusion Kernel
+     */
+    Fusion.registerNsObject('Fusion.Kernel',
+    {
+        Events: {},
+
+        /**
+         * Register an event on the kernel
+         * @param eventName
+         * @param eventCode
+         */
+        registerEvent: function (eventName, eventCode) {
+            Fusion.Kernel.Events[eventName] = eventCode;
+        }
+
+    });
+
+</script>

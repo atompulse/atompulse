@@ -1,31 +1,28 @@
 <?php
-namespace Atompulse\FusionBundle\Services;
+namespace Atompulse\Bundle\FusionBundle\Services;
 
-use Atompulse\FusionBundle\Compiler\Refiner\SimpleRefiner;
-use Atompulse\Component\Data;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+use Atompulse\Component\Data;
+
 /**
  * Atompulse Fusion Data Manager
- * @package Atompulse\FusionBundle\Services
+ * @package Atompulse\Bundle\FusionBundle\Services
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
 class FusionDataManager
 {
+    use ContainerAwareTrait;
+
     /**
      * @var string
      */
-    private $version = '0.3';
-
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    protected $container = null;
+    private $version = '0.4';
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\Controller\Controller
@@ -42,14 +39,6 @@ class FusionDataManager
      * @var array
      */
     protected $dataContainer = [];
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
 
     /**
      * Determine if the controller is qualified for data injection
@@ -119,7 +108,7 @@ class FusionDataManager
      */
     public function setData($name, $value, $scope = false)
     {
-        // resolve scope: if none given the current controller name will be used
+        // scope resolution: if none given the current controller name will be used
         $scope = $scope ? $scope : Data\Transform::getControllerName(get_class($this->controller));
 
         $this->dataContainer[$scope][$name] = $value;
@@ -158,12 +147,13 @@ class FusionDataManager
     protected function addDataToResponse($content)
     {
         $preparedJsData = $this->transformDataForJs($this->dataContainer);
-        //print '<pre>';print_r($preparedJsData);die;
         $params = ['data' => $preparedJsData];
-        $scriptContent = SimpleRefiner::refine($this->container->get('twig')->render('add-js-data.html.twig', $params));
+        /** @var $refiner \Atompulse\Bundle\FusionBundle\Assets\Refiner\RefinerInterface */
+        $refiner = $this->container->get('fusion.assets.refiner');
 
-        // perform injection tag replacement
+        $scriptContent = $refiner::refine($this->container->get('twig')->render('add-js-data.html.twig', $params));
 
+        // perform tag replacement
         $content = str_replace('<!--@fusion_inject_data-->', $scriptContent, $content);
 
         return $content;

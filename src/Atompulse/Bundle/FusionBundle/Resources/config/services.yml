@@ -1,42 +1,53 @@
 services:
   fusion.twig_extension:
-    class:    Atompulse\FusionBundle\Twig\FusionTwigExtension
-    arguments: ['@service_container']
+    class:    Atompulse\Bundle\FusionBundle\Twig\FusionTwigExtension
+    calls:
+      - [setContainer, ['@service_container']]
+      - [init]
     tags:
       - { name: twig.extension }
 
   fusion.kernel.manager:
-    class:      Atompulse\FusionBundle\Services\FusionKernelManager
-    arguments: ['@service_container']
+    class:      Atompulse\Bundle\FusionBundle\Services\FusionKernelManager
+    calls:
+      - [setContainer, ['@service_container']]
     tags:
-      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
-      - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -201 }
-      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 200 }
+      - { name: kernel.event_listener, event: kernel.controller,  method: onKernelController }
+      - { name: kernel.event_listener, event: kernel.response,    method: onKernelResponse, priority: -201 }
+      - { name: kernel.event_listener, event: kernel.exception,   method: onKernelException, priority: 200 }
 
   fusion.data.manager:
-    class:      Atompulse\FusionBundle\Services\FusionDataManager
-    arguments: ['@service_container']
+    class:      Atompulse\Bundle\FusionBundle\Services\FusionDataManager
+    calls:
+      - [setContainer, ['@service_container']]
     tags:
-      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
-      - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -202 }
-      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 199 }
+      - { name: kernel.event_listener, event: kernel.controller,  method: onKernelController }
+      - { name: kernel.event_listener, event: kernel.response,    method: onKernelResponse, priority: -202 }
+      - { name: kernel.event_listener, event: kernel.exception,   method: onKernelException, priority: 199 }
 
   fusion.includes.manager:
-    class:      Atompulse\FusionBundle\Services\FusionIncludesManager
-    arguments: ['@service_container']
+    class:      Atompulse\Bundle\FusionBundle\Services\FusionIncludesManager
+    calls:
+      - [setContainer, ['@service_container']]
     tags:
-      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
-      - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -200 }
-      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 198 }
 
-  #fusion.includes.js.compiler:
-  #  class:
-  #  arguments: [@service_container]
-  #  tags:
-  #    - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -200 }
+      - { name: kernel.event_listener, event: kernel.request,     method: onKernelRequest }
+      - { name: kernel.event_listener, event: kernel.controller,  method: onKernelController }
+      - { name: kernel.event_listener, event: kernel.response,    method: onKernelResponse, priority: -200 }
+      - { name: kernel.event_listener, event: kernel.exception,   method: onKernelException, priority: 198 }
 
-  #fusion.includes.css.compiler:
-  #  class:
-  #  arguments: [@service_container]
-  #  tags:
-  #    - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -200 }
+  # refiner handler
+  fusion.assets.refiner:
+    class:      Atompulse\Bundle\FusionBundle\Assets\Refiner\SimpleRefiner
+
+  # compiled loader handler
+  fusion.assets.compiled.loader:
+    class:      Atompulse\Bundle\FusionBundle\Assets\Loader
+    calls:
+      - [setContainer, ['@service_container']]
+
+  # async loader handler
+  fusion.assets.async.loader:
+    class:      Atompulse\Bundle\FusionBundle\Assets\Loader\AsyncLoader
+    calls:
+      - [setContainer, ['@service_container']]

@@ -1,9 +1,9 @@
 <?php
-namespace Atompulse\FusionBundle\Includes\Loader;
+namespace Atompulse\Bundle\FusionBundle\Assets\Loader;
 
 /**
  * Class CompiledLoader
- * @package Atompulse\FusionBundle\Includes\Loader
+ * @package Atompulse\Bundle\FusionBundle\Includes\Loader
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

@@ -1,9 +1,9 @@
 <?php
-namespace Atompulse\FusionBundle\Compiler\Refiner;
+namespace Atompulse\Bundle\FusionBundle\Assets\Refiner;
 
 /**
  * Class SimpleRefiner
- * @package Atompulse\FusionBundle\Compiler\Refiner
+ * @package Atompulse\Bundle\FusionBundle\Compiler\Refiner
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
@@ -12,6 +12,7 @@ class SimpleRefiner implements RefinerInterface
     /**
      * Very basic content optimizer
      * @param string $content
+     * @return mixed|string
      */
     public static function refine($content)
     {

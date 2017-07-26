@@ -1,6 +1,6 @@
 <?php
 
-namespace Atompulse\FusionBundle\DependencyInjection;
+namespace Atompulse\Bundle\FusionBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -35,7 +35,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarNode('parameter')
                             ->cannotBeEmpty()->isRequired()
-                            ->example('fusion_includes')
+                            ->example('fusion_includes/includes')
                         ->end()
 //                        ->scalarNode('source')
 //                            ->cannotBeEmpty()->isRequired()

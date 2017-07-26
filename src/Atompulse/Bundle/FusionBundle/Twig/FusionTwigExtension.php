@@ -1,31 +1,24 @@
 <?php
-namespace Atompulse\FusionBundle\Twig;
+namespace Atompulse\Bundle\FusionBundle\Twig;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use \Twig_Environment;
-use \Twig_Loader_String;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class Fusion Twig Extension
- * @package Atompulse\FusionBundle\Twig
+ * @package Atompulse\Bundle\FusionBundle\Twig
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
 class FusionTwigExtension extends \Twig_Extension
 {
+    use ContainerAwareTrait;
 
     /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     * Initialize extension
      */
-    protected $container;
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    public function init()
     {
-        $this->container = $container;
-        $path = $this->container->get('kernel')->locateResource('@FusionBundle/Resources/views', 'FusionBundle');
+        $path = $this->container->get('kernel')->locateResource('@FusionBundle/Resources/views/extension', 'FusionBundle');
         $this->container->get('twig')->getLoader()->addPath($path);
     }
 
@@ -44,6 +37,7 @@ class FusionTwigExtension extends \Twig_Extension
 //            $this->setupInjectFunction($globalOptions),
             $this->setupFusionKernel($globalOptions),
             $this->setupFusionData($globalOptions),
+            $this->setupFusionIncludesLoader($globalOptions),
             $this->setupFusionIncludeCss($globalOptions),
             $this->setupFusionIncludeJs($globalOptions),
             $this->setupFusionIncludeAngular($globalOptions),
@@ -129,6 +123,18 @@ class FusionTwigExtension extends \Twig_Extension
         return "<!--@fusion_inject_data-->";
     }
 
+    protected function setupFusionIncludesLoader($globalOptions)
+    {
+        $function = new \Twig_SimpleFunction('fusion_includes_loader', [$this, 'handleFusionIncludesLoader'], $globalOptions);
+
+        return $function;
+    }
+
+    public function handleFusionIncludesLoader()
+    {
+        return $this->container->get('twig')->render('includes-loader.html.twig');
+    }
+
     protected function setupFusionIncludeCss($globalOptions)
     {
         $function = new \Twig_SimpleFunction('fusion_include_css', [$this, 'handleFusionIncludeCss'], $globalOptions);
@@ -177,6 +183,6 @@ class FusionTwigExtension extends \Twig_Extension
             'params' => array_merge($contextParams, $params),
         ];
 
-        return $this->container->get('twig')->render('extension/include-angular.html.twig', $params);
+        return $this->container->get('twig')->render('include-angular.html.twig', $params);
     }
 }

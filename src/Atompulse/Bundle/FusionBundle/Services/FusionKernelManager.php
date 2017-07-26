@@ -1,8 +1,7 @@
 <?php
-namespace Atompulse\FusionBundle\Services;
+namespace Atompulse\Bundle\FusionBundle\Services;
 
-use Atompulse\FusionBundle\Compiler\Refiner\SimpleRefiner;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
@@ -13,29 +12,19 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Class FusionKernelManager
- * @package Atompulse\FusionBundle\Services
+ * @package Atompulse\Bundle\FusionBundle\Services
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
 class FusionKernelManager 
 {
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    protected $container = null;
+    use ContainerAwareTrait;
 
     /**
+     * State if the fusion kernel should be injected into response
      * @var bool
      */
     protected $isQualifiedRequest = false;
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
 
     /**
      * @param FilterControllerEvent $event
@@ -50,7 +39,6 @@ class FusionKernelManager
 
         if (!$request->isXmlHttpRequest() && $event->getRequestType() == HttpKernelInterface::MASTER_REQUEST) {
             $this->isQualifiedRequest = true;
-//            $this->controller = $event->getController()[0];
         }
     }
 
@@ -101,13 +89,17 @@ class FusionKernelManager
     }
 
     /**
+     * Inject the fusion kernel
      * @param $content
      * @return mixed
      */
     protected function addFusionKernelToResponse($content)
     {
+        /** @var $refiner \Atompulse\Bundle\FusionBundle\Assets\Refiner\RefinerInterface */
+        $refiner = $this->container->get('fusion.assets.refiner');
+
         $params = ['data' => []];
-        $scriptContent = SimpleRefiner::refine($this->container->get('twig')->render('kernel.js.twig', $params));
+        $scriptContent = $refiner::refine($this->container->get('twig')->render('kernel.js.twig', $params));
 
         // perform injection tag replacement
         $content = str_replace('<!--@fusion_inject_kernel-->', $scriptContent, $content);

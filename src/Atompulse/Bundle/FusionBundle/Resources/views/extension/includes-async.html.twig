@@ -1,0 +1,14 @@
+<script type="text/javascript" data-id="fusion.includes.{{ type }}">
+    // Register event for includes
+    Fusion.Kernel.registerEvent('IncludesLoaded', 1000);
+    // Load Assets
+    head.load(
+        {% for assetIdx, asset in assets %}
+            {'{{ assetIdx }}': '{{ absolute_url(asset.web) }}'}
+            {% if not loop.last %}, {% endif %}
+        {% endfor %},
+        function () {
+            Fusion.NotificationCenter.dispatch(Fusion.Kernel.Events.IncludesLoaded, '{{ type }}');
+        }
+    );
+</script>

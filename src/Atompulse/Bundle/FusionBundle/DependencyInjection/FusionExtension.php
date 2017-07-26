@@ -1,6 +1,8 @@
 <?php
 
-namespace Atompulse\FusionBundle\DependencyInjection;
+namespace Atompulse\Bundle\FusionBundle\DependencyInjection;
+
+use Atompulse\Bundle\FusionBundle\Assets\Data\FusionImportData;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -9,11 +11,11 @@ use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\Yaml\Parser as YamlParser;
 use Symfony\Component\Finder\Finder;
 
-
 /**
- * This is the class that loads and manages your bundle configuration
+ * Class FusionExtension
+ * @package Atompulse\Bundle\FusionBundle\DependencyInjection
  *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
+ * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
 class FusionExtension extends Extension
 {
@@ -52,18 +54,17 @@ class FusionExtension extends Extension
         if (isset($config['includes']) && $config['includes']['enabled']) {
             // save state
             $this->includesEnabled = true;
-            // check for imports paths
-            $this->importPaths = isset($this->container->getParameter('fusion')['includes']['imports']) ?
-                $this->container->getParameter('fusion')['includes']['imports'] : false;
+            // get imports paths
+            $this->importPaths = $this->container->getParameter('fusion')['includes']['imports'];
+            $this->importParameter = $this->container->getParameter('fusion')['includes']['parameter'];
+            // load imports specifications
+            $imports = $this->collectImports($this->importPaths, $this->importParameter);
             // add assets paths
             $this->fusionIncludesMap['assets_paths'] = $config['includes']['paths'];
-            // process includes configuration if found
-            if ($this->container->hasParameter($config['includes']['parameter'])) {
-                // save state
-                $this->includesConfigured = true;
-                $includesConfig = $this->container->getParameter($config['includes']['parameter']);
-                $this->processIncludesConfig($includesConfig);
-            }
+            // process the imports
+            $this->processImports($imports);
+            // save state
+            $this->includesConfigured = true;
         }
         // add the state of fusion
         $this->container->setParameter('fusion_includes_enabled', $this->includesEnabled);
@@ -82,26 +83,56 @@ class FusionExtension extends Extension
     }
 
     /**
-     * Process all fusion includes config
-     * @param $includesConfig
+     * Collect imports from specified locations
+     * @param array $importPaths
+     * @param string $parameter
+     * @return array
+     * @throws \Exception
      */
-    protected function processIncludesConfig($includesConfig)
+    protected function collectImports(array $importPaths, string $parameter)
     {
-        //print '<pre>';print_r($includesConfig);die;
-
-        if (isset($includesConfig['groups'])) {
-            $this->resolveGroups($includesConfig['groups']);
+        $imports = [];
+        foreach ($importPaths as $alias => $importPath) {
+            $defaultImportFile = $importPath . DIRECTORY_SEPARATOR . $parameter;
+            $importResource = is_file($importPath) ? $importPath : $defaultImportFile;
+            if (file_exists($importResource)) {
+                try {
+                    $importData = $this->yamlParser->parse(file_get_contents($importResource));
+                    $imports[$alias] = new FusionImportData($importData);
+                } catch (\Exception $e) {
+                    new \Exception("Unable parse import data structure in file [$importResource] from path [$importPath]");
+                }
+            } else {
+                throw new \Exception("Import file [$importResource] from path [$importPath] was not found");
+            }
         }
 
-        if (isset($includesConfig['controllers'])) {
-            $this->resolveControllers($includesConfig['controllers']);
-        }
+        return $imports;
+    }
 
-        if (isset($includesConfig['global'])) {
-            $this->resolveGlobals($includesConfig['global']);
+    /**
+     * @param array $imports
+     * @throws \Exception
+     */
+    protected function processImports(array $imports)
+    {
+        /**
+         * @var FusionImportData $importData
+         */
+        foreach ($imports as $importAlias => $importData) {
+            if ($importData->groups) {
+                $this->resolveGroups($importData->groups);
+            }
+            if ($importData->controllers) {
+                $this->resolveControllers($importData->controllers);
+            }
+            if ($importData->global) {
+                $this->resolveGlobals($importData->global);
+            }
+            if ($importData->includes) {
+                $this->resolveGlobals($importData->includes);
+            }
         }
-
-        //print '<pre>';print_r($this->fusionMap);die('!');
     }
 
     /**
@@ -256,20 +287,22 @@ class FusionExtension extends Extension
 
     /**
      * Resolve Global includes
-     * @param $globalsConfig
+     * @param array $global
+     * @throws \Exception
      */
-    protected function resolveGlobals($globalsConfig)
+    protected function resolveGlobals(array $global)
     {
-        // process global group includes
-        if (isset($globalsConfig['includes'])) {
-            $this->fusionIncludesMap['globals'] =  $this->processIncludes($globalsConfig['includes']);
-        }
+        $this->fusionIncludesMap['global'] =  $this->processIncludes($global);
     }
 
     private function processControllerConfig($controllerConfig)
     {
         $controllerAssets = [
-            'all' => ['js'=>[], 'css'=>[], 'groups'=>[]],
+            'all' => [
+                'js'=>[],
+                'css'=>[],
+                'groups'=>[]
+            ],
             'actions' => []
         ];
 
@@ -391,12 +424,8 @@ class FusionExtension extends Extension
         return $processedAssets;
     }
 
-    private function resolveAssetPath($assetPath)
+    private function resolveAssetPath(string $assetPath)
     {
-        if (!is_string($assetPath)) {
-            throw new \Exception("Asset Path expected to be a string, but got <" . var_export($assetPath, true).">");
-        }
-
         $assetPath = strtolower($assetPath);
         $assetParts = explode('/', $assetPath);
         $assetAliasPath = array_shift($assetParts);
@@ -413,41 +442,31 @@ class FusionExtension extends Extension
         return $asset;
     }
 
-    private function findAssetsInPath($path, $web = '')
+    private function findAssetsInPath(string $realPath, string $webPath = '')
     {
         $assets = ['js'=>[],'css'=>[]];
-        $finder = Finder::create();
-        $files = $finder->files()->name('*.js')->in($path);
 
-        //print $web."\n\n";
+
+
+        $finder = Finder::create();
+        $files = $finder->files()->name('*.js')->in($realPath);
 
         if (count($files)) {
             foreach ($files as $file) {
-                //print_r(get_class_methods($file));
-//                $meta = pathinfo($file->getPathname());
-
-//                print_r(explode('Resources/public/', $file->getPathname()));
-//                die;
-
-//                $alias = str_replace('/', '_', $web) . $meta['filename'];
-
                 $assets['js'][] = [
                     'path' => $file->getRealPath(),
-                    'web'  => str_replace('\\', '/', $web . '/' . $file->getRelativePathname()),
+                    'web'  => str_replace('\\', '/', $webPath . '/' . $file->getRelativePathname()),
                 ];
             }
         }
 
         $finder = Finder::create();
-        $files = $finder->files()->name('*.css')->in($path);
+        $files = $finder->files()->name('*.css')->in($realPath);
         if (count($files)) {
             foreach ($files as $file) {
-//                $meta = pathinfo($file->getPathname());
-//                $alias = str_replace('/', '_', $web) . $meta['filename'];
-
                 $assets['css'][] = [
                     'path' => $file->getRealPath(),
-                    'web'  => str_replace('\\', '/', $web . '/' . $file->getRelativePathname()),
+                    'web'  => str_replace('\\', '/', $webPath . '/' . $file->getRelativePathname()),
                 ];
             }
         }

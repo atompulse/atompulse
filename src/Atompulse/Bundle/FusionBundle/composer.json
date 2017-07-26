@@ -1,0 +1,22 @@
+{
+  "name": "atompulse/fusion-bundle",
+  "description": "Atompulse FusionBundle",
+  "type": "library",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "autoload": {
+      "psr-4": { "Atompulse\\Bundle\\FusionBundle\\": "" }
+  },
+  "require": {
+    "symfony/symfony": "3.*",
+    "atompulse/domain": "dev-master",
+    "atompulse/data": "dev-master"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
