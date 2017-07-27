@@ -2,7 +2,7 @@
 
 namespace Atompulse\RanBundle\Traits\Controller;
 
-use Atompulse\Utils\Data\DataFinder;
+use Atompulse\Component\Data\DataFinder;
 
 /**
  * Trait RanManagement
