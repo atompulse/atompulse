@@ -1,11 +1,11 @@
 <?php
-namespace Atompulse\Component\Data\Validator;
+namespace Atompulse\Component\Validator\GenericDataList;
 
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Class GenericDataList
- * @package Atompulse\Component\Data
+ * Class GenericDataListConstraint
+ * @package Atompulse\Component\Validator\GenericDataList
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

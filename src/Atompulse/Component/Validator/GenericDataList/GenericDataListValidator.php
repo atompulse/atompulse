@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\Component\Data\Validator;
+namespace Atompulse\Component\Validator\GenericDataList;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class GenericDataListValidator
- * @package Atompulse\Component\Data\Validator
+ * @package Atompulse\Component\Validator\GenericDataList
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

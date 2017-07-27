@@ -1,0 +1,27 @@
+{
+  "name": "atompulse/validator",
+  "description": "Atompulse Validator Component",
+  "type": "library",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Component\\Validator\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "require": {
+    "symfony/validator": "3.*",
+    "symfony/dependency-injection": "3.*",
+    "league/json-guard": "^0.5.1"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

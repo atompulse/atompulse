@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\Component\Data\Validator\JsonSchema;
+namespace Atompulse\Component\Validator\JsonSchema;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -10,7 +10,7 @@ use League\JsonGuard;
 
 /**
  * Class JsonSchemaValidator
- * @package Atompulse\Component\Data\Validator\JsonSchema
+ * @package Atompulse\Component\Validator\JsonSchema
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
