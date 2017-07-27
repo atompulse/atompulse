@@ -1,0 +1,27 @@
+{
+  "name": "atompulse/rad-bundle",
+  "description": "Atompulse RAD Bundle",
+  "type": "library",
+  "license": "Apache 2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "autoload": {
+      "psr-4": { "Atompulse\\Bundle\\RadBundle\\": "" }
+  },
+  "require": {
+    "symfony/symfony": "3.*",
+    "atompulse/fusion-bundle": "dev-master",
+    "friendsofsymfony/jsrouting-bundle": "2.0.*@dev"
+  },
+  "config": {
+    "sort-packages": true,
+    "vendor-dir": "vendor",
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
