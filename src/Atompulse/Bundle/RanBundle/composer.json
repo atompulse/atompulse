@@ -9,6 +9,9 @@
       "email": "petru.cojocar@gmail.com"
     }
   ],
+  "autoload": {
+      "psr-4": { "Atompulse\\RanBundle\\": "" }
+  },
   "require": {
     "symfony/symfony": "3.*"
   },
