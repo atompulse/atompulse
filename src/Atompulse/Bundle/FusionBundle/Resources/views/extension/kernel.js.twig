@@ -105,11 +105,17 @@
         /**
          * Subscribe to an event
          */
-        subscribe: function (event, subject, callback, params) {
+        subscribe: function (event, subject, callback, params, priority) {
+            if (!typeof callback === 'function') {
+                throw "[Fusion.NotificationCenter.subscribe] callback in not a valid function";
+            }
+            priority = priority || 0;
+            params = params || {};
             Fusion.NotificationCenter.central[event] = Fusion.NotificationCenter.central[event] || {};
             Fusion.NotificationCenter.central[event][subject] = Fusion.NotificationCenter.central[event][subject] || {};
-            Fusion.NotificationCenter.central[event][subject].subcribers = Fusion.NotificationCenter.central[event][subject].subcribers || [];
-            Fusion.NotificationCenter.central[event][subject].subcribers.push({callback: callback, args: params});
+            Fusion.NotificationCenter.central[event][subject].subcribers = Fusion.NotificationCenter.central[event][subject].subcribers || {};
+            Fusion.NotificationCenter.central[event][subject].subcribers[priority] = Fusion.NotificationCenter.central[event][subject].subcribers[priority] || [];
+            Fusion.NotificationCenter.central[event][subject].subcribers[priority].push({callback: callback, args: params});
         },
 
         /**
@@ -118,9 +124,16 @@
         dispatch: function (event, subject, eventParams) {
             if (typeof(Fusion.NotificationCenter.central[event]) !== 'undefined' &&
                     typeof(Fusion.NotificationCenter.central[event][subject]) !== 'undefined') {
-                for (var subscriber in Fusion.NotificationCenter.central[event][subject].subcribers) {
-                    subscriber.callback.apply(subscriber.callback, [subscriber.args, eventParams]);
-                    Fusion.NotificationCenter.central[event][subject].subcribers.pop();
+                var subscribers = Fusion.NotificationCenter.central[event][subject].subcribers;
+                // notify subscribers
+                for (var priority in subscribers) {
+                    if (!subscribers.hasOwnProperty(priority)) continue;
+                    subscribers[priority].forEach(function (subscriber) {
+                        // launch callbacks
+                        subscriber.callback.apply(subscriber.callback, [subscriber.args, eventParams]);
+                        // remove subscriber
+                        Fusion.NotificationCenter.central[event][subject].subcribers[priority].pop();
+                    });
                 }
             }
         }
