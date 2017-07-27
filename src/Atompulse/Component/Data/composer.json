@@ -17,11 +17,7 @@
       "/Tests/"
     ]
   },
-  "require": {
-    "symfony/validator": "3.*",
-    "symfony/dependency-injection": "3.*",
-    "league/json-guard": "^0.5.1"
-  },
+  "require": {},
   "minimum-stability": "dev",
   "prefer-stable": true
 }
