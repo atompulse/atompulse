@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\Bundle\RadBundle\Services;
+namespace Atompulse\Bundle\RadBundle\Services\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
