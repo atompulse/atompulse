@@ -46,7 +46,7 @@ class Configuration implements ConfigurationInterface
                             ->prototype('scalar')
                                 ->isRequired()
                             ->end()
-                            ->example(' - "%kernel.root_dir%/../src/bundles/YourBundle/Resources/config/fusion/imports"')
+                            ->example(' - "%kernel.root_dir%/../src/bundles/YourBundle/Resources/config"')
                         ->end()
                         ->arrayNode('paths')
                             ->prototype('array')
