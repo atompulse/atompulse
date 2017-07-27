@@ -32,7 +32,7 @@ trait ControllerActionResolverTrait
 
         if (count($params) > 1) {
             $data['action'] = substr($params[1], 0, -6);
-            $data['controller'] = $params[1];
+            $data['controller'] = $params[0];
         } else {
             throw new \Exception("Couldn't extract action name. Maybe cache should be cleared?");
         }
