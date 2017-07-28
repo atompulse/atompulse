@@ -95,10 +95,11 @@ class FusionExtension extends Extension
         foreach ($importPaths as $alias => $importPath) {
             // check for shortcut notation (convention based import)
             if (strpos($alias, '@') !== false) {
+                $alias = str_replace('@', '', $alias);
                 // add an asset path for this alias's path
                 $assetPath = [
-                    'path' => $importPath . '/Resources/public/' . str_replace('@', '', $alias),
-                    'web' => '/bundles/' . str_replace('@', '', $alias)
+                    'path' => $importPath . '/Resources/public',
+                    'web' => '/bundles/' . $alias
                 ];
                 $this->fusionIncludesMap['assets_paths'][$alias] = $assetPath;
                 // add convention based suffix to import path (to find the includes yml file)
