@@ -3,14 +3,18 @@ namespace Atompulse\Component\Grid\Configuration;
 
 use Atompulse\Component\Domain\Data\DataContainer;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
-use Atompulse\Component\Grid\Configuration\Scope\GridAction;
-use Atompulse\Component\Grid\Configuration\Scope\GridField;
+use Atompulse\Component\Grid\Configuration\Definition\GridAction;
+use Atompulse\Component\Grid\Configuration\Definition\GridField;
 
 /**
  * Class GridConfiguration
  * @package Atompulse\Component\Grid\Configuration
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
+ *
+ * @property array actions
+ * @property array fields
+ *
  */
 class GridConfiguration implements DataContainerInterface
 {

@@ -1,14 +1,23 @@
 <?php
-namespace Atompulse\Component\Grid\Configuration\Scope;
+namespace Atompulse\Component\Grid\Configuration\Definition;
 
 use Atompulse\Component\Domain\Data\DataContainer;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
  * Class GridField
- * @package Atompulse\Component\Grid\Configuration\Scope
+ * @package Atompulse\Component\Grid\Configuration\Definition
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
+ *
+ * @property boolean visible
+ * @property string type
+ * @property string label
+ * @property boolean sort
+ * @property string render
+ * @property string css
+ * @property string cell_css
+ * @property string width
  */
 class GridField implements DataContainerInterface
 {
@@ -33,7 +42,6 @@ class GridField implements DataContainerInterface
             'css' => 'string|null',
             'cell_css' => 'string|null',
             'width' => 'string|null',
-
         ];
 
         if ($field !== null) {

@@ -17,11 +17,20 @@
       "/Tests/"
     ]
   },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/atompulse/PropelBundle",
+      "no-api": true
+    }
+  ],
   "require": {
     "atompulse/data": "dev-master",
     "symfony/http-foundation": "3.*",
-    "propel/propel-bundle": "dev-build-properties-fix",
-    "sokil/php-mongo": "1.*"
+    "propel/propel-bundle": "dev-build-properties-fix"
+  },
+  "suggest": {
+      "sokil/php-mongo": "Allows mongodb datasource"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

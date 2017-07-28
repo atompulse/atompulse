@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Atompulse\Component\Data\Transform;
 use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
 use Atompulse\Component\Grid\Data\Source\PropelDataSource;
+use Atompulse\Component\Grid\Configuration\GridConfiguration;
 
 
 /**
@@ -17,7 +18,10 @@ use Atompulse\Component\Grid\Data\Source\PropelDataSource;
  */
 class DataGrid implements DataGridInterface
 {
-    protected $config = false;
+    /**
+     * @var GridConfiguration
+     */
+    protected $config = null;
 
     /**
      * @var Request
@@ -52,10 +56,9 @@ class DataGrid implements DataGridInterface
 
     /**
      * Create DataGrid Instance
-     * @param array $config
-     * @return \Atompulse\Component\Grid\DataGrid
+     * @param GridConfiguration $config
      */
-    public function __construct($config)
+    public function __construct(GridConfiguration $config)
     {
         $this->config = $config;
         $this->prepareGridHeader();

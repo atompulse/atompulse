@@ -1,14 +1,17 @@
 <?php
-namespace Atompulse\Component\Grid\Configuration\Scope;
+namespace Atompulse\Component\Grid\Configuration\Definition;
 
 use Atompulse\Component\Domain\Data\DataContainer;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
  * Class GridAction
- * @package Atompulse\Component\Grid\Configuration\Scope
+ * @package Atompulse\Component\Grid\Configuration\Definition
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
+ *
+ * @property string with
+ * @property string render
  */
 class GridAction implements DataContainerInterface
 {
