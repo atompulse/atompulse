@@ -1,12 +1,12 @@
 <?php
 
-namespace Atompulse\RanBundle\Traits\Controller;
+namespace Atompulse\Bundle\RanBundle\Traits\Controller;
 
 use Atompulse\Component\Data\DataFinder;
 
 /**
  * Trait RanManagement
- * @package Atompulse\RanBundle\Controller\Traits
+ * @package Atompulse\Bundle\RanBundle\Controller\Traits
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

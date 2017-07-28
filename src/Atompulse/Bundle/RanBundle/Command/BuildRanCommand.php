@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Command;
+namespace Atompulse\Bundle\RanBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class BuildRanCommand
- * @package Atompulse\RanBundle\Command
+ * @package Atompulse\Bundle\RanBundle\Command
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

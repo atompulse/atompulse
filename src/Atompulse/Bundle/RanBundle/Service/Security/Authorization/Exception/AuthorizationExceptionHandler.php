@@ -1,14 +1,14 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security\Authorization\Exception;
+namespace Atompulse\Bundle\RanBundle\Service\Security\Authorization\Exception;
 
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpFoundation\Response;
 
-use Atompulse\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
+use Atompulse\Bundle\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
 
 /**
  * Class AuthorizationExceptionHandler
- * @package Atompulse\RanBundle\Service\Security\Authorization\Exception
+ * @package Atompulse\Bundle\RanBundle\Service\Security\Authorization\Exception
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

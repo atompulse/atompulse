@@ -1,7 +1,7 @@
 <?php
-namespace Atompulse\RanBundle\Listener\Security;
+namespace Atompulse\Bundle\RanBundle\Listener\Security;
 
-use Atompulse\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
+use Atompulse\Bundle\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
 
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Class SecurityExceptionListener
- * @package Atompulse\RanBundle\Listener\Security
+ * @package Atompulse\Bundle\RanBundle\Listener\Security
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security\Authentication;
+namespace Atompulse\Bundle\RanBundle\Service\Security\Authentication;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\HttpUtils;
 /**
  * Custom authentication handler
  * Class AuthenticationHandler
- * @package  Atompulse\RanBundle\Services\Authentication
+ * @package  Atompulse\Bundle\RanBundle\Services\Authentication
  *
  * @author Ionut Pisla <ionut.tudorel@gmail.com>
  */

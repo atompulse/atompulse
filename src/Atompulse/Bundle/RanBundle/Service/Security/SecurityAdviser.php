@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security;
+namespace Atompulse\Bundle\RanBundle\Service\Security;
 
 use Psr\Log\LoggerInterface;
 
@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
  * Class SecurityAdviser
- * @package Atompulse\RanBundle\Service\Security
+ * @package Atompulse\Bundle\RanBundle\Service\Security
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

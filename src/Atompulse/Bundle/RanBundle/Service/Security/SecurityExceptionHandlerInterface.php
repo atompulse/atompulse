@@ -1,11 +1,11 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security;
+namespace Atompulse\Bundle\RanBundle\Service\Security;
 
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
 /**
  * Interface SecurityExceptionHandlerInterface
- * @package Atompulse\RanBundle\Service\Security
+ * @package Atompulse\Bundle\RanBundle\Service\Security
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

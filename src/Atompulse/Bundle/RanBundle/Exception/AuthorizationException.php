@@ -1,12 +1,12 @@
 <?php
-namespace Atompulse\RanBundle\Exception;
+namespace Atompulse\Bundle\RanBundle\Exception;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
  * Class AuthorizationException
  * Base class for Ran authorization exceptions.
- * @package Atompulse\RanBundle\Exception
+ * @package Atompulse\Bundle\RanBundle\Exception
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

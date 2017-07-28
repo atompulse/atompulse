@@ -1,6 +1,6 @@
 <?php
 
-namespace Atompulse\RanBundle\DependencyInjection;
+namespace Atompulse\Bundle\RanBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Loader;
 
 /**
  * Atompulse RAN Extension
- * @package Atompulse\RanBundle\DependencyInjection
+ * @package Atompulse\Bundle\RanBundle\DependencyInjection
  *
  * This is the class that loads and manages bundle configuration
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}

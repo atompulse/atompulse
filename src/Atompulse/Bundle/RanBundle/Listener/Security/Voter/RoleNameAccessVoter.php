@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Listener\Security\Voter;
+namespace Atompulse\Bundle\RanBundle\Listener\Security\Voter;
 
 use Psr\Log\LoggerInterface;
 
@@ -7,12 +7,12 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-use Atompulse\RanBundle\Exception\InexistentRoleException;
-use Atompulse\RanBundle\Service\Security\SecurityAdviser;
+use Atompulse\Bundle\RanBundle\Exception\InexistentRoleException;
+use Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser;
 
 /**
  * Class RoleNameAccessVoter
- * @package Atompulse\RanBundle\Listener\Security\Voter
+ * @package Atompulse\Bundle\RanBundle\Listener\Security\Voter
  *
  * This is the heart of the RAN Authorization System :
  * - authorizes access to URL's by checking the accessed route's requirements vs user roles

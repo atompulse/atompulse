@@ -1,13 +1,13 @@
 <?php
 
-namespace Atompulse\RanBundle\DependencyInjection;
+namespace Atompulse\Bundle\RanBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * Atompulse RAN Bundle Configuration
- * @package Atompulse\RanBundle\DependencyInjection
+ * @package Atompulse\Bundle\RanBundle\DependencyInjection
  *
  * This is the class that validates and merges configuration from app/config files
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}

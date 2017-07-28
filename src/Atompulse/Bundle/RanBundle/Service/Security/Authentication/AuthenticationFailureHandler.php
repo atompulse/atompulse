@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security\Authentication;
+namespace Atompulse\Bundle\RanBundle\Service\Security\Authentication;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 /**
  * Custom authentication handler
  * Class AuthenticationHandler
- * @package  Atompulse\RanBundle\Services\Authentication
+ * @package  Atompulse\Bundle\RanBundle\Services\Authentication
  *
  * @author Ionut Pisla <ionut.tudorel@gmail.com>
  */

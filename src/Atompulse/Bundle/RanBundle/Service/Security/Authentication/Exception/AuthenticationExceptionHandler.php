@@ -1,5 +1,5 @@
 <?php
-namespace Atompulse\RanBundle\Service\Security\Authentication\Exception;
+namespace Atompulse\Bundle\RanBundle\Service\Security\Authentication\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -7,11 +7,11 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
-use Atompulse\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
+use Atompulse\Bundle\RanBundle\Service\Security\SecurityExceptionHandlerInterface;
 
 /**
  * Class AuthenticationExceptionHandler
- * @package Atompulse\RanBundle\Services\Authentication\Exception
+ * @package Atompulse\Bundle\RanBundle\Services\Authentication\Exception
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

@@ -1,16 +1,16 @@
 <?php
-namespace Atompulse\RanBundle\Listener\Security;
+namespace Atompulse\Bundle\RanBundle\Listener\Security;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
-use Atompulse\RanBundle\Service\Security\SecurityAdviser;
+use Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser;
 
 /**
  * Class MenuBuilderListener
- * @package Atompulse\RanBundle\Listener\Security
+ * @package Atompulse\Bundle\RanBundle\Listener\Security
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

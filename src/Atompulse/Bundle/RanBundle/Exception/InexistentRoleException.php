@@ -1,10 +1,10 @@
 <?php
-namespace Atompulse\RanBundle\Exception;
+namespace Atompulse\Bundle\RanBundle\Exception;
 
 /**
  * Class InexistentRoleException
  * Exception thrown when a role doesnt exist in the Ran System
- * @package Atompulse\RanBundle\Exception
+ * @package Atompulse\Bundle\RanBundle\Exception
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
