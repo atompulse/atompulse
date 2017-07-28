@@ -10,7 +10,7 @@
     }
   ],
   "autoload": {
-      "psr-4": { "Atompulse\\Bundle\\RadBundle\\": "" }
+      "psr-4": { "Atompulse\\Bundle\\RanBundle\\": "" }
   },
   "require": {
     "symfony/symfony": "3.*"
