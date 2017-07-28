@@ -57,10 +57,10 @@ class FusionExtension extends Extension
             // get imports paths
             $this->importPaths = $this->container->getParameter('fusion')['includes']['imports'];
             $this->importParameter = $this->container->getParameter('fusion')['includes']['parameter'];
-            // load imports specifications
-            $imports = $this->collectImports($this->importPaths, $this->importParameter);
             // add assets paths
             $this->fusionIncludesMap['assets_paths'] = $config['includes']['paths'];
+            // load imports specifications
+            $imports = $this->collectImports($this->importPaths, $this->importParameter);
             // process the imports
             $this->processImports($imports);
             // save state
@@ -93,14 +93,27 @@ class FusionExtension extends Extension
     {
         $imports = [];
         foreach ($importPaths as $alias => $importPath) {
+            // check for shortcut notation (convention based import)
+            if (strpos($alias, '@') !== false) {
+                // add an asset path for this alias's path
+                $assetPath = [
+                    'path' => $importPath . '/Resources/public/' . str_replace('@', '', $alias),
+                    'web' => '/bundles/' . str_replace('@', '', $alias)
+                ];
+                $this->fusionIncludesMap['assets_paths'][$alias] = $assetPath;
+                // add convention based suffix to import path (to find the includes yml file)
+                $importPath.='/Resources/config';
+            }
+
             $defaultImportFile = $importPath . DIRECTORY_SEPARATOR . $parameter;
             $importResource = is_file($importPath) ? $importPath : $defaultImportFile;
+
             if (file_exists($importResource)) {
                 try {
                     $importData = $this->yamlParser->parse(file_get_contents($importResource));
                     $imports[$alias] = new FusionImportData($importData);
                 } catch (\Exception $e) {
-                    new \Exception("Unable parse import data structure in file [$importResource] from path [$importPath]");
+                    throw new \Exception("Unable parse import data structure in file [$importResource] from path [$importPath]");
                 }
             } else {
                 throw new \Exception("Import file [$importResource] from path [$importPath] was not found");
