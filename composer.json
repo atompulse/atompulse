@@ -34,6 +34,24 @@
     "propel/propel-bundle": "dev-build-properties-fix",
     "sokil/php-mongo": "1.*"
   },
+  "require-dev": {
+    "sensio/generator-bundle": "^3.0",
+    "sensio/distribution-bundle": "^5.0.19",
+    "sensio/framework-extra-bundle": "^3.0.2"
+  },
+  "suggest": {
+      "sokil/php-mongo": "Allows mongodb datasource for data grid component"
+  },
+  "config": {
+    "sort-packages": true,
+    "vendor-dir": "vendor",
+    "preferred-install": "dist"
+  },
+  "extra": {
+    "symfony-app-dir": "app",
+    "symfony-bin-dir": "bin",
+    "symfony-var-dir": "var"
+  },
   "minimum-stability": "dev",
   "prefer-stable": true
 }
