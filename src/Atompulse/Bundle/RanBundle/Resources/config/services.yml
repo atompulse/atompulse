@@ -3,7 +3,7 @@ parameters:
 
 services:
 
-  # RAN Menu Processing & Injection on login
+  # RAN Security Adviser
   ran.security.adviser:
     class:      Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser
     arguments:  ['%ran_sys%', '%ran_security%', '@security.token_storage']
@@ -15,13 +15,24 @@ services:
     tags:
       - { name: security.voter }
 
+  # RAN Menu Builder
+  ran.menu.builder:
+    class:      Atompulse\Bundle\RanBundle\Service\Menu\MenuBuilderService
+    arguments:  ['@router', '@logger', '%ran_menu%']
+
   # RAN Menu Processing & Injection after login
-  ran.menu_builder.listener:
-    class:      Atompulse\Bundle\RanBundle\Listener\Security\MenuBuilderListener
-    arguments:  ['@ran.security.adviser', '@router',  '@logger', '@session', '%ran_menu%']
+  ran.menu.builder.listener_with_authorization:
+    class:      Atompulse\Bundle\RanBundle\Listener\Menu\SecuredMenuBuilderListener
+    arguments:  ['@ran.menu.builder', '@session', '%ran_menu%', '@logger', '@ran.security.adviser']
     tags:
       - { name: kernel.event_listener, event: security.interactive_login, method: onSecurityInteractiveLogin }
 
+  # RAN Menu processing & injection on kernel controller
+  ran.menu.builder.listener_without_authorization:
+    class:      Atompulse\Bundle\RanBundle\Listener\Menu\NonSecuredMenuBuilderListener
+    arguments:  ['@ran.menu.builder', '@session', '%ran_menu%', '@logger']
+    tags:
+      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
 
   # RAN Security Exception Listener
   ran.security.exception.listener:
@@ -30,20 +41,24 @@ services:
     tags:
         - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 255 }
 
+  # RAN Security Authentication Exception Listener
   ran.security.exception.authentication.handler:
     class:      Atompulse\Bundle\RanBundle\Service\Security\Authentication\Exception\AuthenticationExceptionHandler
     arguments: ['@router', '@security.csrf.token_manager']
 
+  # RAN Security Authorization Exception Listener
   ran.security.exception.authorization.handler:
     class:      Atompulse\Bundle\RanBundle\Service\Security\Authorization\Exception\AuthorizationExceptionHandler
     arguments: []
 
+  # RAN Security Authentication Success Listener
   ran.authentication_success_handler:
     class: Atompulse\Bundle\RanBundle\Service\Security\Authentication\AuthenticationSuccessHandler
     arguments:  ["@security.http_utils", {}]
     tags:
         - { name: 'monolog.logger', channel: 'security' }
 
+  # RAN Security Authentication Failure Listener
   ran.authentication_failure_handler:
     class:  Atompulse\Bundle\RanBundle\Service\Security\Authentication\AuthenticationFailureHandler
     arguments:  ["@http_kernel", "@security.http_utils", {}, "@logger"]

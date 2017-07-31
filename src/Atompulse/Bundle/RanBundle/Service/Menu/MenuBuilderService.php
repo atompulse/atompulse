@@ -1,26 +1,19 @@
 <?php
-namespace Atompulse\Bundle\RanBundle\Listener\Security;
-
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+namespace Atompulse\Bundle\RanBundle\Service\Menu;
 
 use Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser;
 
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Routing\RouterInterface;
+
 /**
- * Class MenuBuilderListener
- * @package Atompulse\Bundle\RanBundle\Listener\Security
+ * Class MenuBuilderService
+ * @package Atompulse\Bundle\RanBundle\Service\Menu
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-class MenuBuilderListener
+class MenuBuilderService
 {
-    /**
-     * @var SecurityAdviser
-     */
-    protected $securityAdviser;
-
     /**
      * @var RouterInterface
      */
@@ -30,11 +23,6 @@ class MenuBuilderListener
      * @var LoggerInterface
      */
     protected $logger;
-
-    /**
-     * @var Session
-     */
-    protected $session;
 
     /**
      * @var array
@@ -75,47 +63,28 @@ class MenuBuilderListener
     ];
 
     /**
-     * @param SecurityAdviser $securityAdviser
      * @param RouterInterface $router
      * @param LoggerInterface $logger
-     * @param $ranSettings
+     * @param array $ranMenu
+     * @throws \Exception
      */
-    public function __construct(SecurityAdviser $securityAdviser, RouterInterface $router, LoggerInterface $logger, Session $session, $ranMenu)
+    public function __construct(RouterInterface $router, LoggerInterface $logger, array $ranMenu = null)
     {
-        $this->securityAdviser = $securityAdviser;
         $this->router = $router;
         $this->logger = $logger;
         $this->ranMenu = $ranMenu;
-        $this->session = $session;
-    }
 
-    /**
-     * Add available Menu Items on login
-     * @param InteractiveLoginEvent $event
-     * @throws \Exception
-     */
-    public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
-    {
         if (!$this->ranMenu) {
-            throw new \Exception("Menu param name is not defined.. impossible to read menu items!");
+            throw new \Exception("Menu not defined.. impossible to process menu items!");
         }
-        // process the available menu items for the user
-        $menuData = $this->buildMenuData();
-
-        $this->logger->debug("RAN: Got [" . count($this->ranMenu['data']) . "] menu items.");
-        $this->logger->debug("RAN: System Role Access Names [" . json_encode($this->securityAdviser->getSystemPermissions()) . "]");
-        $this->logger->debug("RAN: Processed(available) menu items [" . json_encode($menuData) . "]");
-
-        // add this to the user session
-        $this->session->set($this->ranMenu['session'], $menuData);
-        $this->logger->debug("RAN: Added processed menu items into user session [{$this->ranMenu['session']}]");
     }
 
     /**
-     * Build the menu data
+     * Build menu data with authorization checking
+     * @param SecurityAdviser $securityAdviser
      * @return array
      */
-    protected function buildMenuData()
+    public function buildMenuDataWithAuthorizationCheck(SecurityAdviser $securityAdviser)
     {
         $menuData = [];
 
@@ -126,9 +95,9 @@ class MenuBuilderListener
             if (isset($menuGroupData['items']) && count($menuGroupData['items'])) {
                 foreach ($menuGroupData['items'] as $itemKey => $itemData) {
                     // route has RAN requirement
-                    if (!$this->securityAdviser->userHasOverrideRoles() &&
-                        $this->securityAdviser->getRouteRequiredPermissions($itemData['route']) &&
-                        $this->securityAdviser->userHasRequiredPermissionsForRoute($itemData['route'])
+                    if (!$securityAdviser->userHasOverrideRoles() &&
+                        $securityAdviser->getRouteRequiredPermissions($itemData['route']) &&
+                        $securityAdviser->userHasRequiredPermissionsForRoute($itemData['route'])
                     ) {
                         $menuGroupItems[$itemKey] = $this->processMenuItem($itemData);
                     }
@@ -139,12 +108,41 @@ class MenuBuilderListener
                 }
             } // standalone menu group
             elseif (isset($menuGroupData['route'])) {
-                if (!$this->securityAdviser->userHasOverrideRoles() &&
-                    $this->securityAdviser->getRouteRequiredPermissions($menuGroupData['route']) &&
-                    $this->securityAdviser->userHasRequiredPermissionsForRoute($menuGroupData['route'])
+                if (!$securityAdviser->userHasOverrideRoles() &&
+                    $securityAdviser->getRouteRequiredPermissions($menuGroupData['route']) &&
+                    $securityAdviser->userHasRequiredPermissionsForRoute($menuGroupData['route'])
                 ) {
                     $menuData[$menuGroup] = $this->processMenuGroupItem($menuGroupData, $menuGroupItems);
                 }
+            }
+        }
+
+        return $menuData;
+    }
+
+    /**
+     * Build menu data without authorization checking
+     * @return array
+     */
+    public function buildMenuDataWithoutAuthorizationCheck()
+    {
+        $menuData = [];
+
+        // process menu items
+        foreach ($this->ranMenu['data'] as $menuGroup => $menuGroupData) {
+            $menuGroupItems = [];
+            // menu group with items
+            if (isset($menuGroupData['items']) && count($menuGroupData['items'])) {
+                foreach ($menuGroupData['items'] as $itemKey => $itemData) {
+                    $menuGroupItems[$itemKey] = $this->processMenuItem($itemData);
+                }
+                // add menu group with items
+                if (count($menuGroupItems)) {
+                    $menuData[$menuGroup] = $this->processMenuGroupItem($menuGroupData, $menuGroupItems);
+                }
+            } // standalone menu group
+            elseif (isset($menuGroupData['route'])) {
+                $menuData[$menuGroup] = $this->processMenuGroupItem($menuGroupData, $menuGroupItems);
             }
         }
 
@@ -191,5 +189,4 @@ class MenuBuilderListener
 
         return $menuGroupItem;
     }
-
 }

@@ -2,6 +2,12 @@
 # menu keys are not used for any purpose
 parameters:
   main_menu:
+    MENU_KEY_X:
+      label: Single item
+      css: css-class
+      image: some-image.png
+      route:  route_to_action
+      items:  ~
     MENU_KEY_A:
       label: Some nice label
       css: css-class

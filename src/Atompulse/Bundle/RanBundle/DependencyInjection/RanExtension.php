@@ -4,6 +4,8 @@ namespace Atompulse\Bundle\RanBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -36,20 +38,26 @@ class RanExtension extends Extension
         // add 'ran_security' as a parameter
         $container->setParameter('ran_security', $config['security']);
 
+        // add RAN Services
         $selfConfigLoader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-        // Add RAN Services
         $selfConfigLoader->load('services.yml');
 
         // configure loader for generated files
-        $externalConfigLoader = new Loader\YamlFileLoader($container, new FileLocator($config['generator']['output']));
+        $generatorLoader = new Loader\YamlFileLoader($container, new FileLocator($config['generator']['output']));
+        try {
+            // load generated files
+            $generatorLoader->load('role_access_names_gui.yml');
+            $generatorLoader->load('role_access_names_system.yml');
+        } catch (\Exception $e) {
+            $container->setParameter('ran_sys', $this->prepareDefaultRanSystemSettings());
+            $container->setParameter('ran_gui', $this->prepareDefaultRanGuiSettings());
+        }
 
-        // load generated files
-        $externalConfigLoader->load('role_access_names_gui.yml');
-        $externalConfigLoader->load('role_access_names_system.yml');
-
-        // handle menu and ui_tree
-        if (isset($config['menu'])) {
-            $externalConfigLoader->load($config['menu']['source']);
+        // handle menu loading
+        if (isset($config['menu']) && file_exists($config['menu']['source'])) {
+            $loader = new Loader\YamlFileLoader($container, new FileLocator(dirname($config['menu']['source'])));
+            $loader->load($config['menu']['source']);
+            // register menu in the container
             $container->setParameter(
                 'ran_menu',
                 [
@@ -57,11 +65,23 @@ class RanExtension extends Extension
                     'session' => $config['menu']['session']
                 ]
             );
+
+            // security not enabled
+            if (!$container->getParameter('ran_security')['enabled']) {
+                $container->removeDefinition('ran.menu.builder.listener_with_authorization');
+            } else {
+                $container->removeDefinition('ran.menu.builder.listener_without_authorization');
+            }
         } else {
             $container->setParameter('ran_menu', null);
         }
-        if (isset($config['ui_tree'])) {
-            $externalConfigLoader->load($config['ui_tree']['source']);
+
+        // handle ui tree loading
+        if (isset($config['ui_tree']) && file_exists($config['ui_tree']['source'])) {
+            $loader = new Loader\YamlFileLoader($container, new FileLocator(dirname($config['ui_tree']['source'])));
+            $loader->load($config['ui_tree']['source']);
+        } else {
+            $container->setParameter('ui_tree', null);
         }
     }
 
@@ -70,11 +90,38 @@ class RanExtension extends Extension
      */
     protected function prepareDefaultRanSecuritySettings()
     {
-        $security = [
+        $settings = [
+            'enabled' => true,
             'override' => [],
             'ignore_inexistent_role' => true
         ];
 
-        return $security;
+        return $settings;
     }
+
+    /**
+     * @return array
+     */
+    protected function prepareDefaultRanSystemSettings()
+    {
+        $settings = [
+            'hierarchy' => [],
+            'requirements' => [],
+        ];
+
+        return $settings;
+    }
+
+    /**
+     * @return array
+     */
+    protected function prepareDefaultRanGuiSettings()
+    {
+        $settings = [
+        ];
+
+        return $settings;
+    }
+
+
 }

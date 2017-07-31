@@ -1,7 +1,3 @@
-#ran_homepage:
-#    path:     /hello/{name}
-#    defaults: { _controller: RanBundle:Default:index }
-
 #ajax_relogin:
 #  path:     /login_check
 #  defaults: { _controller: FOSUserBundle:Security:check }

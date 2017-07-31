@@ -1,8 +1,6 @@
 <?php
 namespace Atompulse\Bundle\RanBundle\Service\Security;
 
-use Psr\Log\LoggerInterface;
-
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -92,7 +90,8 @@ class SecurityAdviser
      */
     private function processUserPermissions()
     {
-        if ($this->token && $this->token->isAuthenticated()) {
+        if ($this->token && $this->token->isAuthenticated() && !is_string($this->token->getUser())) {
+
             $userRoles = $this->token->getUser()->getRoles();
 
             foreach ($userRoles as $role) {

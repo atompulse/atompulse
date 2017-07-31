@@ -1,6 +1,7 @@
-# Group are organized in collections (i.e. A,B); collection names have no significance
+# Groups are organized in collections (i.e. A,B); collection names have no significance
+# Group names are the user named groups in the RAN settings of specific routes
 # A collection can have either 1 'group' or a list of 'groups'
-# Its posible to have a collection which contains a group that has no items (roles)
+# Its posible to have a collection which contains a group that has no other groups - is standalone (i.e. A)
 parameters:
   ran_ui_tree:
     A:
