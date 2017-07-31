@@ -18,7 +18,7 @@ use Atompulse\Component\Grid\Configuration\Definition\GridField;
  */
 class GridConfiguration implements DataContainerInterface
 {
-    use DataContainer
+    use DataContainer;
 
     /**
      * @param array $configuration
