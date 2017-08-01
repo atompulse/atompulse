@@ -131,15 +131,21 @@ trait DataContainer
 
     /**
      * Set a property value
-     * @info This is a shortcut method to allow $this->properties[$property] = $value;
+     * @info This is a shortcut method to allow $this->properties[$property] = $value / $this->properties[$property][] = $value;
      * @param string $property
      * @param mixed $value
      * @throws PropertyNotValidException
      */
-    public function setPropertyValue(string $property, $value)
+    public function addPropertyValue(string $property, $value)
     {
         if ($this->isValidProperty($property)) {
-            $this->properties[$property] = $value;
+            $requiredTypes = $this->getDefinedTypes($property);
+            // add to array property type
+            if (in_array('array', $requiredTypes) && !is_array($value)) {
+                $this->properties[$property][] = $value;
+            } else {
+                $this->properties[$property] = $value;
+            }
         }
 
         throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
