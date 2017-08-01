@@ -10,6 +10,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  *
+ * @property string name
  * @property string with
  * @property string render
  */
@@ -24,8 +25,13 @@ class GridAction implements DataContainerInterface
     public function __construct(array $action = [])
     {
         $this->validProperties = [
-            'with' => 'string|null',
+            'name' => 'string',
+            'with' => 'array|string',
             'render' => 'string|null'
+        ];
+
+        $this->defaultValues = [
+            'with' => '*'
         ];
 
         if ($action !== null) {

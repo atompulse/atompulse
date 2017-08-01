@@ -1,0 +1,32 @@
+order: [nr_crt]
+fields:
+  id:
+    visible: false
+    type: number
+  nr_crt:
+    visible: true
+    type: number
+    label: Current Number
+    render: renderCurrentNumber
+  name:
+    visible: true
+    type: string
+    label: Name
+  description:
+    visible: true
+    type: virtual
+    label: Description
+  actions:
+    type: actions
+    width: '120'
+    css: text_center
+    label: 'Actions'
+actions:
+  details:
+    render: renderEdit
+  edit:
+    with: [id]
+    render: renderEdit
+  delete:
+    with: [id]
+    render: renderDelete

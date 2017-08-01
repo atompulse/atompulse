@@ -2,8 +2,7 @@
 
 namespace Atompulse\Component\Grid;
 
-use Symfony\Component\HttpFoundation\Request;
-
+use Atompulse\Component\Grid\Data\Flow\Parameters;
 use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
 
 /**
@@ -15,12 +14,11 @@ use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
 interface DataGridInterface 
 {
     /**
-     * Extract request params
-     * @param Request $request
-     * @param mixed $requestNamespace
+     * Set data flow parameters - pagination, filters, sorters
+     * @param Parameters $parameters
      * @return mixed
      */
-    public function bindRequest(Request $request, $requestNamespace = false);
+    public function setParameters(Parameters $parameters);
 
     /**
      * Set the data source
@@ -37,11 +35,11 @@ interface DataGridInterface
      */
     public function resolve($query, DataSourceInterface $ds = null);
 
-    /**
-     * Process the data from the data source
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    public function processData();
+//    /**
+//     * Process the data from the data source
+//     * @return \Atompulse\Component\Grid\DataGrid
+//     */
+//    public function processData();
 
     /**
      * Get the processed grid data
@@ -73,4 +71,4 @@ interface DataGridInterface
      */
     public function getPagination();
 
-} 
+}

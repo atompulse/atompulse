@@ -2,6 +2,9 @@
 
 namespace Atompulse\Component\Grid;
 
+use Atompulse\Component\Grid\Configuration\Definition\GridAction;
+use Atompulse\Component\Grid\Configuration\Definition\GridField;
+use Atompulse\Component\Grid\Data\Flow\Parameters;
 use Symfony\Component\HttpFoundation\Request;
 
 use Atompulse\Component\Data\Transform;
@@ -24,10 +27,10 @@ class DataGrid implements DataGridInterface
     protected $config = null;
 
     /**
-     * @var Request
+     * @var Parameters
      */
-    protected $request = false;
-    protected $requestNamespace = false;
+    protected $parameters = null;
+
     protected $mappedParams = false;
 
     protected $filterParams = false;
@@ -61,27 +64,18 @@ class DataGrid implements DataGridInterface
     public function __construct(GridConfiguration $config)
     {
         $this->config = $config;
-        $this->prepareGridHeader();
 
         return $this;
     }
 
     /**
-     * Grab the request and extract the information needed by the grid
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param string $requestNamespace
-     * @return \Atompulse\Component\Grid\DataGrid
+     * Setup flow parameters
+     * @param Parameters $parameters
+     * @return $this
      */
-    public function bindRequest(Request $request, $requestNamespace = false)
+    public function setParameters(Parameters $parameters)
     {
-        $this->request = $request;
-        $this->requestNamespace = $requestNamespace;
-
-        // extract the parameters
-        $this->mappDtRequestParams()
-            ->extractPaginationParams()
-            ->extractFilterParams()
-            ->extractSortingParams();
+        $this->parameters = $parameters;
 
         return $this;
     }
@@ -116,26 +110,12 @@ class DataGrid implements DataGridInterface
     }
 
     /**
-     * Process the data from the data source
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    public function processData()
-    {
-        $this->prepareGridHeader()
-             ->prepareGridData();
-
-        return $this;
-    }
-
-    /**
      * Get the processed grid data
      * @return array
      */
     public function getGridData()
     {
-        $this->processData();
-
-        return $this->gridData;
+        return $this->processData();
     }
 
     /**
@@ -146,7 +126,7 @@ class DataGrid implements DataGridInterface
     {
         if (!$this->gridMetaData) {
             $this->prepareGridHeader()
-                ->prepareGridActions();
+                 ->prepareGridActions();
 
             $this->gridMetaData = [
                 'header' => $this->gridHeader,
@@ -196,6 +176,18 @@ class DataGrid implements DataGridInterface
     }
 
     /**
+     * Process the data from the data source
+     * @return \Atompulse\Component\Grid\DataGrid
+     */
+    protected function processData()
+    {
+        $this->prepareGridHeader()
+             ->prepareGridData();
+
+        return $this;
+    }
+
+    /**
      * Prepare the grid header
      * @return \Atompulse\Component\Grid\DataGrid
      */
@@ -207,53 +199,42 @@ class DataGrid implements DataGridInterface
             $this->processGridFieldsOrderSettings();
             $this->prepareGridActions();
 
-            $actionsColumnAdded = false;
-            // build jqDataTables accepted column definition
-            foreach ($this->config['fields']['settings'] as $fieldName => $settings) {
-                $isActionField = false;
-                if ($fieldName == 'actions') {
-                    if ($this->gridRowActions) {
-                        $actionsColumnAdded = true;
-                        $isActionField = true;
-                    } else {
-                        continue;
-                    }
-                }
-                // get items with custom render
-                if (isset($settings['render'])) {
-                    $this->gridCustomRenders[$idx] = $settings['render'];
-                }
-                $header[$idx]['aTargets'][] = $this->gridFieldsOrder[$fieldName];
-                $header[$idx]['sTitle'] = isset($settings['label']) ? $settings['label'] : $fieldName;
-                $header[$idx]['bVisible'] = isset($settings['visible']) ? $settings['visible'] : true;
-                $header[$idx]['bSortable'] = isset($settings['sort']) ? $settings['sort'] : false;
-                $header[$idx]['sWidth'] = isset($settings['width']) ? $settings['width'] : 'auto';
-                $header[$idx]['sClass'] = isset($settings['css']) ? $settings['css'] : false;
-                $header[$idx]['cellClass'] = isset($settings['cell_css']) ? $settings['cell_css'] : false;
-                $header[$idx]['bAction'] = $isActionField;
+            // TODO: introduce the
 
-                $header[$idx]['fType'] = isset($settings['type']) ? $settings['type'] :
-                    (($fieldName == 'actions') ? 'action' : 'string');
-                $header[$idx]['fScope'] = isset($settings['scope']) ? $settings['scope'] : null;
-
-                // check for virtual field
-                if (isset($settings['type']) && $settings['type'] == 'virtual') {
-                    $this->virtualFields[] = $fieldName;
+            /** @var GridField $field */
+            foreach ($this->config->fields as $field) {
+                switch ($field->type) {
+                    case GridField::FIELD_TYPE_ACTIONS :
+                        $header[$idx]['aTargets'][] = $idx;
+                        $header[$idx]['sTitle'] = $field->label ? $field->label : 'Actions';
+                        $header[$idx]['bVisible'] = $field->visible;
+                        $header[$idx]['bSortable'] = $field->sort;
+                        $header[$idx]['sWidth'] = $field->width;
+                        $header[$idx]['sClass'] = $field->css;
+                        $header[$idx]['cellClass'] = $field->cell_css;
+                        $header[$idx]['bAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
+                        $header[$idx]['fType'] = $field->type;
+                        break;
+                    case GridField::FIELD_TYPE_VIRTUAL :
+                        $this->virtualFields[] = $field->name;
+                        break;
+                    default:
+                        // get items with custom render
+                        if ($field->render) {
+                            $this->gridCustomRenders[$idx] = $field->render;
+                        }
+                        $header[$idx]['aTargets'][] = $this->gridFieldsOrder[$field->name];
+                        $header[$idx]['sTitle'] = $field->label ? $field->label : $field->name;
+                        $header[$idx]['bVisible'] = $field->visible;
+                        $header[$idx]['bSortable'] = $field->sort;
+                        $header[$idx]['sWidth'] = $field->width;
+                        $header[$idx]['sClass'] = $field->css;
+                        $header[$idx]['cellClass'] = $field->cell_css;
+                        $header[$idx]['bAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
+                        $header[$idx]['fType'] = $field->type;
+                        break;
                 }
-
                 $idx++;
-            }
-
-            // add placeholder for actions if it wasn't defined in the fields
-            if (!$actionsColumnAdded && $this->gridRowActions) {
-                $header[$idx]['aTargets'][] = $idx;
-                $header[$idx]['sTitle'] = 'Actions';
-                $header[$idx]['bVisible'] = true;
-                $header[$idx]['bSortable'] = false;
-                $header[$idx]['sWidth'] = isset($settings['width']) ? $settings['width'] : 'auto';
-                $header[$idx]['sClass'] = isset($settings['css']) ? $settings['css'] : false;
-                $header[$idx]['cellClass'] = isset($settings['cell_css']) ? $settings['cell_css'] : false;
-                $header[$idx]['bAction'] = true;
             }
 
             $this->gridHeader = $header;
@@ -331,15 +312,13 @@ class DataGrid implements DataGridInterface
     {
         if (!$this->gridRowActions) {
             $rowActions = [];
-            if (isset($this->config['actions']) && count($this->config['actions'])) {
-                // prepare the action params => retrieve the position of the items in
-                // the datasource array to be used in js
-                foreach ($this->config['actions'] as $actionName => $params) {
-                    $rowActions[$actionName] = $params;
-                    if (isset($rowActions[$actionName]['with'])) {
-                        $rowActions[$actionName]['with'] = $this->prepareActionParams($params['with']);
-                    } else {
-                        $rowActions[$actionName]['with'] = '*';
+            if (count($this->config->actions)) {
+                // prepare the action params
+                /** @var GridAction $action */
+                foreach ($this->config->actions as $action) {
+                    $rowActions[$action->name] = $action->normalizeData();
+                    if (is_array($action->with)) {
+                        $rowActions[$action->name]['with'] = $this->prepareActionParams($action->with);
                     }
                 }
             }
@@ -356,14 +335,13 @@ class DataGrid implements DataGridInterface
     protected function processGridFieldsOrderSettings()
     {
         if (!count($this->gridFieldsOrder)) {
-
-            $definedFieldsOrder = array_flip($this->config['fields']['order']);
+            $definedFieldsOrder = array_flip($this->config->order);
             $maxOrderIdx = max($definedFieldsOrder);
-
             // add order definition for fields which didn't had the order defined
-            foreach ($this->config['fields']['settings'] as $fieldName => $settings) {
-                if (!isset($definedFieldsOrder[$fieldName])) {
-                    $definedFieldsOrder[$fieldName] = ++$maxOrderIdx;
+            /** @var GridField $field */
+            foreach ($this->config->fields as $field) {
+                if (!isset($definedFieldsOrder[$field->name])) {
+                    $definedFieldsOrder[$field->name] = ++$maxOrderIdx;
                 }
             }
 
@@ -373,40 +351,40 @@ class DataGrid implements DataGridInterface
         return $this;
     }
 
-    /**
-     * Transform data tables params to mapped: paramName => paramValue array
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function mappDtRequestParams()
-    {
-        if (!$this->mappedParams) {
-            $request = $this->request;
-
-            if ($this->requestNamespace) {
-                $params = $request->get($this->requestNamespace);
-            } else {
-                // POST
-                if ($request->getMethod() == 'POST') {
-                    $params = $request->request->all();
-                } // GET
-                else {
-                    $params = $request->query->all();
-                }
-            }
-
-            $mappedParams = [];
-
-            foreach ($params as $paramData) {
-                $paramName = $paramData['name'];
-                $paramValue = $paramData['value'];
-                $mappedParams[$paramName] = $paramValue;
-            }
-
-            $this->mappedParams = $mappedParams;
-        }
-
-        return $this;
-    }
+//    /**
+//     * Transform data tables params to mapped: paramName => paramValue array
+//     * @return \Atompulse\Component\Grid\DataGrid
+//     */
+//    protected function mappDtRequestParams()
+//    {
+//        if (!$this->mappedParams) {
+//            $parameters = $this->request;
+//
+//            if ($this->requestNamespace) {
+//                $params = $parameters->get($this->requestNamespace);
+//            } else {
+//                // POST
+//                if ($request->getMethod() == 'POST') {
+//                    $params = $request->request->all();
+//                } // GET
+//                else {
+//                    $params = $request->query->all();
+//                }
+//            }
+//
+//            $mappedParams = [];
+//
+//            foreach ($params as $paramData) {
+//                $paramName = $paramData['name'];
+//                $paramValue = $paramData['value'];
+//                $mappedParams[$paramName] = $paramValue;
+//            }
+//
+//            $this->mappedParams = $mappedParams;
+//        }
+//
+//        return $this;
+//    }
 
 
     /**

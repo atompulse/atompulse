@@ -14,7 +14,7 @@
       "Atompulse\\Component\\Grid\\": ""
     },
     "exclude-from-classmap": [
-      "/Tests/"
+      "/tests/"
     ]
   },
   "repositories": [
@@ -22,12 +22,18 @@
       "type": "vcs",
       "url": "https://github.com/atompulse/PropelBundle",
       "no-api": true
+    },
+    {
+      "type": "path",
+      "url": "/Users/petru.cojocar/workspace/atompulse/src/Atompulse/Component/Domain"
     }
   ],
   "require": {
-    "atompulse/data": "dev-master",
-    "symfony/http-foundation": "3.*",
+    "atompulse/domain": "dev-master",
     "propel/propel-bundle": "dev-build-properties-fix"
+  },
+  "require-dev": {
+    "symfony/yaml": "^3.0"
   },
   "suggest": {
       "sokil/php-mongo": "Allows mongodb datasource"
