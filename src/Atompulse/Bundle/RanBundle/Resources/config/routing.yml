@@ -1,3 +1,32 @@
+routeA:
+  path:     /route-a
+  defaults: { _controller: AppBundle:ControllerA:actionA }
+  methods:  [GET]
+  options:
+    ran:
+      group: AUTHORIZATION_GROUP_A
+    expose: true
+
+routeB:
+  path:     /route-b
+  methods:  [GET]
+  defaults: { _controller: AppBundle:ControllerB:actionB }
+  options:
+    ran:
+      group: AUTHORIZATION_GROUP_B
+      role: lots
+    expose: true
+
+routeC:
+  path:     /route-c
+  methods:  [POST]
+  defaults: { _controller: AppBundle:ControllerC:actionC }
+  options:
+    ran:
+      group: AUTHORIZATION_GROUP_B
+      role: routeB #inherit the same permission as routeB
+    expose: true
+
 #ajax_relogin:
 #  path:     /login_check
 #  defaults: { _controller: FOSUserBundle:Security:check }
