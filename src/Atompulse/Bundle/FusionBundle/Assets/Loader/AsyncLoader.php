@@ -158,4 +158,4 @@ class AsyncLoader implements AssetsLoaderInterface
 
         return $key;
     }
-} 
+}

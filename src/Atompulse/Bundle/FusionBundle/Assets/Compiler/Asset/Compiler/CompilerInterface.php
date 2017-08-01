@@ -1,8 +1,6 @@
 <?php
 namespace AtomPulse\FusionBundle\Fusion\Asset\Compiler;
 
-use AtomPulse\FusionBundle\Fusion\Asset\Refine;
-
 /**
  * Asset Compiler Interface
  *
@@ -11,8 +9,8 @@ use AtomPulse\FusionBundle\Fusion\Asset\Refine;
 interface CompilerInterface
 {
 
-    public function addRefiner(Refine\RefinerInterface $refiner);
-
-    public function compile($assets);
+//    public function addRefiner(Refine\RefinerInterface $refiner);
+//
+//    public function compile($assets);
 
 }
