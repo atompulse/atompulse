@@ -2,6 +2,7 @@ Resources
 ---------
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cad4e9c4-36e6-4e92-a979-638a3f4a08b1/big.png)](https://insight.sensiolabs.com/projects/cad4e9c4-36e6-4e92-a979-638a3f4a08b1)
+https://insight.sensiolabs.com/projects/cad4e9c4-36e6-4e92-a979-638a3f4a08b1/big.png
 
   * [Contributing](https://symfony.com/doc/current/contributing/index.html)
   * [Report issues](https://github.com/atompulse/atompulse/issues) and
