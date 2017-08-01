@@ -10,7 +10,7 @@ use Atompulse\Component\Data\DataFinder;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-trait RanManagement
+trait RanManagementDeprecated
 {
     /**
      * Create ran tree for a group/user

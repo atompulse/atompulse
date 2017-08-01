@@ -17,4 +17,4 @@ class InexistentRoleException extends AuthorizationException
     {
         return 'Role does not exists';
     }
-} 
+}
