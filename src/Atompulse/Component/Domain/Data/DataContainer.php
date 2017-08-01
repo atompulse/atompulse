@@ -146,9 +146,9 @@ trait DataContainer
             } else {
                 $this->properties[$property] = $value;
             }
+        } else {
+            throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
         }
-
-        throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
     }
 
     /**
