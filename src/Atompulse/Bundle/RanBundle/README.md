@@ -1,10 +1,12 @@
 Resources
 ---------
 
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/cad4e9c4-36e6-4e92-a979-638a3f4a08b1/big.png)](https://insight.sensiolabs.com/projects/cad4e9c4-36e6-4e92-a979-638a3f4a08b1)
+
   * [Contributing](https://symfony.com/doc/current/contributing/index.html)
-  * [Report issues](https://github.com/symfony/symfony/issues) and
-    [send Pull Requests](https://github.com/symfony/symfony/pulls)
-    in the [main Symfony repository](https://github.com/symfony/symfony)
+  * [Report issues](https://github.com/atompulse/atompulse/issues) and
+    [send Pull Requests](https://github.com/atompulse/atompulse/pulls)
+    in the [main Atompulse repository](https://github.com/atompulse/atompulse)
 
 What is RanBundle?
 -----------------
