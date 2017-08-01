@@ -48,9 +48,8 @@ class NonSecuredMenuBuilderListener
 
     /**
      * Add available Menu Items on controller selection
-     * @param FilterControllerEvent $event
      */
-    public function onKernelController(FilterControllerEvent $event)
+    public function onKernelController()
     {
         // process the available menu items for the user
         $menuData = $this->menuBuilder->buildMenuDataWithoutAuthorizationCheck();

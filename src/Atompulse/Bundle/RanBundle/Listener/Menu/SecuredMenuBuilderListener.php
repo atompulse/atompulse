@@ -55,10 +55,9 @@ class SecuredMenuBuilderListener
 
     /**
      * Add available Menu Items on login
-     * @param InteractiveLoginEvent $event
      * @throws \Exception
      */
-    public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
+    public function onSecurityInteractiveLogin()
     {
         // process the available menu items for the user
         $menuData = $this->menuBuilder->buildMenuDataWithAuthorizationCheck($this->securityAdviser);

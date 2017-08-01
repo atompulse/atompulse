@@ -8,7 +8,7 @@ namespace Atompulse\Bundle\RanBundle\Traits\Controller;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-trait RanManagement
+trait RanManagementTrait
 {
     /**
      * Create ran UI tree to be used with client side tree component
@@ -17,21 +17,14 @@ trait RanManagement
      * @return array
      * @throws \Exception
      */
-    protected function createRanTree($arrRoles, $readOnly = [])
+    protected function createRanTree()
     {
-        // TODO: handle $arrRoles & $readOnly
-
         // generated role_access_names_gui.yml
         $ranGui = $this->container->getParameter('ran_gui');
         // handcrafted groups tree (ui_tree.yml)
         $ranUiTree = $this->container->getParameter('ran_ui_tree');
 
         $preparedUiTree = [];
-
-//        print '<pre>';
-//        print_r($ranGui);
-//        print_r($ranUiTree);
-//        die;
 
         foreach ($ranUiTree as $collection => $collectionSettings) {
             // collection item structure
@@ -68,7 +61,6 @@ trait RanManagement
             $preparedUiTree[] = $collectionItem;
         }
 
-//        print '<pre>'; print_r($preparedUiTree); die;
         return $preparedUiTree;
     }
 
@@ -104,14 +96,15 @@ trait RanManagement
     /**
      * @param $label
      * @param $permission
-     * @param $key
+     * @param $route
      * @return array
      */
-    private function buildPermissionItem($label, $permission, $key)
+    private function buildPermissionItem($label, $permission, $route)
     {
         $permissionItem = [
             'title' => $label,
             'ran' => $permission,
+            'route' => $route
         ];
 
         return $permissionItem;

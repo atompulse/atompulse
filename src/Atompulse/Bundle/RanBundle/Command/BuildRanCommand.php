@@ -84,7 +84,6 @@ class BuildRanCommand extends ContainerAwareCommand
                         // role extraction: if role not explicit then use the exact route name
                         $role = isset($ran[3]) ? $ran[3] : $routeName;
                     } else {
-                        print_r($ran);
                         // group mandatory
                         $group = $ran['group'];
                         // label extraction: if label not given then will use the route name starting from the second word and humanize the it
@@ -167,5 +166,4 @@ class BuildRanCommand extends ContainerAwareCommand
             $output->writeln(var_export($lastAnalyzedRoute, true));
         }
     }
-
 }

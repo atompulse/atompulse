@@ -2,7 +2,7 @@
   "name": "atompulse/validator",
   "description": "Atompulse Validator Component",
   "type": "library",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Petru Cojocar",
