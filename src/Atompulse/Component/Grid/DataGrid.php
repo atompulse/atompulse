@@ -31,31 +31,43 @@ class DataGrid implements DataGridInterface
      */
     protected $parameters = null;
 
-    protected $mappedParams = false;
-
-    protected $filterParams = false;
-    protected $sortParams = false;
-    protected $paginationParams = false;
-
     /**
      * @var DataSourceInterface
      */
-    protected $dataSource = false;
+    protected $dataSource = null;
 
-    protected $gridHeader = false;
-    protected $gridData = false;
+    /**
+     * @var array
+     */
+    protected $gridHeader = null;
+
+    /**
+     * @var array
+     */
+    protected $gridData = null;
+
     /**
      * @var array
      */
     protected $gridFieldsOrder = [];
+
     /**
      * @var array
      */
     protected $virtualFields = [];
-    protected $gridRowActions = false;
-    protected $gridCustomRenders = false;
+    /**
+     * @var array
+     */
+    protected $gridRowActions = null;
+    /**
+     * @var array
+     */
+    protected $gridCustomRenders = null;
 
-    protected $gridMetaData = false;
+    /**
+     * @var array
+     */
+    protected $gridMetaData = null;
 
     /**
      * Create DataGrid Instance
@@ -69,7 +81,7 @@ class DataGrid implements DataGridInterface
     }
 
     /**
-     * Setup flow parameters
+     * Set the parameters for the grid
      * @param Parameters $parameters
      * @return $this
      */
@@ -83,7 +95,7 @@ class DataGrid implements DataGridInterface
     /**
      * Set the data source
      * @param DataSourceInterface $ds
-     * @return \Atompulse\Component\Grid\DataGrid
+     * @return $this
      */
     public function setDataSource(DataSourceInterface $ds)
     {
@@ -93,29 +105,20 @@ class DataGrid implements DataGridInterface
     }
 
     /**
-     * Execute the $query using the given DataSource
-     * @param mixed $query
-     * @param DataSourceInterface $ds
+     * Get the grid data
      * @return DataGrid
+     * @throws \Exception
      */
-    public function resolve($query, DataSourceInterface $ds = null)
+    public function getData()
     {
-        if (is_null($ds)) {
-            $ds = new PropelDataSource($query, $this->getPagination());
-        } else {
-            $ds->setup($query, $this->getPagination());
+        if (!$this->dataSource) {
+            throw new \Exception("DataSource not given, make sure you have passed a correct DataSource instance using DataGrid::setDataSource");
+        }
+        if (!$this->parameters) {
+            throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
         }
 
-        return $this->setDataSource($ds);
-    }
-
-    /**
-     * Get the processed grid data
-     * @return array
-     */
-    public function getGridData()
-    {
-        return $this->processData();
+        return $this->dataSource->getData($this->parameters);
     }
 
     /**
@@ -145,46 +148,43 @@ class DataGrid implements DataGridInterface
     /**
      * Return the filters
      * @return array
+     * @throws \Exception
      */
     public function getFilters()
     {
-        $this->extractFilterParams();
+        if (!$this->parameters) {
+            throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
+        }
 
-        return $this->filterParams;
+        return $this->parameters->filters;
     }
 
     /**
      * Return the sorters
      * @return array
+     * @throws \Exception
      */
     public function getSorters()
     {
-        $this->extractSortingParams();
+        if (!$this->parameters) {
+            throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
+        }
 
-        return $this->sortParams;
+        return $this->parameters->sorters;
     }
 
     /**
-     * Return the pagination
+     * Return basic pagination information
      * @return array
+     * @throws \Exception
      */
     public function getPagination()
     {
-        $this->extractPaginationParams();
+        if (!$this->parameters) {
+            throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
+        }
 
-        return $this->paginationParams;
-    }
-
-    /**
-     * Process the data from the data source
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function processData()
-    {
-        $this->prepareGridHeader()
-             ->prepareGridData();
-
-        return $this;
+        return ['page' => $this->parameters->page, 'page_size' => $this->parameters->pageSize];
     }
 
     /**
@@ -198,8 +198,6 @@ class DataGrid implements DataGridInterface
             $idx = 0;
             $this->processGridFieldsOrderSettings();
             $this->prepareGridActions();
-
-            // TODO: introduce the
 
             /** @var GridField $field */
             foreach ($this->config->fields as $field) {
@@ -306,7 +304,8 @@ class DataGrid implements DataGridInterface
 
     /**
      * Prepare the grid row actions
-     * @return \Atompulse\Component\Grid\DataGrid
+     * @return $this
+     * @throws \Atompulse\Component\Domain\Data\Exception\PropertyNotValidException
      */
     protected function prepareGridActions()
     {
@@ -330,7 +329,7 @@ class DataGrid implements DataGridInterface
 
     /**
      * Process grid fields order
-     * @return \Atompulse\Component\Grid\DataGrid
+     * @return $this
      */
     protected function processGridFieldsOrderSettings()
     {
@@ -346,117 +345,6 @@ class DataGrid implements DataGridInterface
             }
 
             $this->gridFieldsOrder = $definedFieldsOrder;
-        }
-
-        return $this;
-    }
-
-//    /**
-//     * Transform data tables params to mapped: paramName => paramValue array
-//     * @return \Atompulse\Component\Grid\DataGrid
-//     */
-//    protected function mappDtRequestParams()
-//    {
-//        if (!$this->mappedParams) {
-//            $parameters = $this->request;
-//
-//            if ($this->requestNamespace) {
-//                $params = $parameters->get($this->requestNamespace);
-//            } else {
-//                // POST
-//                if ($request->getMethod() == 'POST') {
-//                    $params = $request->request->all();
-//                } // GET
-//                else {
-//                    $params = $request->query->all();
-//                }
-//            }
-//
-//            $mappedParams = [];
-//
-//            foreach ($params as $paramData) {
-//                $paramName = $paramData['name'];
-//                $paramValue = $paramData['value'];
-//                $mappedParams[$paramName] = $paramValue;
-//            }
-//
-//            $this->mappedParams = $mappedParams;
-//        }
-//
-//        return $this;
-//    }
-
-
-    /**
-     * Extract filter params from the request
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function extractFilterParams()
-    {
-        if (!$this->filterParams) {
-            $filters = [];
-
-            if (isset($this->mappedParams['data-filters'])) {
-                $filters = $this->mappedParams['data-filters'];
-            }
-
-            // remove unused filters
-            foreach ($filters as $filterName => $filterValue) {
-                if (!is_array($filterValue)) {
-                    if (strlen(trim($filterValue)) == 0 || $filterValue == '') {
-                        unset($filters[$filterName]);
-                    }
-                } else {
-                    if (count($filterValue)) {
-                        $filters[$filterName] = $filterValue;
-                    }
-                }
-            }
-
-            $this->filterParams = $filters;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Extract sorting params from the request
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function extractSortingParams()
-    {
-        if (!$this->sortParams) {
-            $sortParams = [];
-            $sorters = [];
-
-            // check for sorting params
-            if (isset($this->mappedParams['data-sorters'])) {
-                $sorters = $this->mappedParams['data-sorters'];
-            }
-
-            //map sorting params
-            foreach ($sorters as $sortColumn => $sortValue) {
-                $sortParams[$sortColumn] = $sortValue;
-            }
-
-            $this->sortParams = $sortParams;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Extract pagination params from the request
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function extractPaginationParams()
-    {
-        if (!$this->paginationParams) {
-
-            $page = isset($this->mappedParams['iDisplayStart']) ? $this->mappedParams['iDisplayStart'] : 1;
-            $size = isset($this->mappedParams['iDisplayLength']) ? $this->mappedParams['iDisplayLength'] : 10;
-
-            $this->paginationParams = ['page' => $page == 0 ? 1 : $page, 'page_size' => $size];
         }
 
         return $this;

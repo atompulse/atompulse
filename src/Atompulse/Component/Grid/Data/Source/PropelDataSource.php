@@ -2,6 +2,8 @@
 
 namespace Atompulse\Component\Grid\Data\Source;
 
+use Atompulse\Component\Grid\Data\Flow\Parameters;
+
 /**
  * Class PropelDataSource
  * @package Atompulse\Component\Grid\Data\Source
@@ -11,43 +13,45 @@ namespace Atompulse\Component\Grid\Data\Source;
 class PropelDataSource implements DataSourceInterface
 {
     /**
+     * @var Parameters
+     */
+    protected $parameters = null;
+
+    /**
+     * @var \ModelCriteria
+     */
+    protected $query = null;
+
+    /**
      * @var \PropelModelPager
      */
-    protected $pager = false;
+    protected $pager = null;
 
     /**
      * @var \PropelArrayCollection
      */
-    protected $data = false;
-
-    /**
-     * @param \ModelCriteria|null $query
-     * @param array $pagination
-     */
-    public function __construct(\ModelCriteria $query = null, $pagination = ['page' => 1, 'page_size' => 10])
-    {
-        if ($query) {
-            $this->setup($query, $pagination);
-        }
-    }
+    protected $data = null;
 
     /**
      * @param \ModelCriteria $query
-     * @param array $pagination
-     * @return mixed|void
      */
-    public function setup($query, $pagination = ['page' => 1, 'page_size' => 10])
+    public function __construct(\ModelCriteria $query)
     {
-        // Get the PropelModelPager instance
-        $this->pager = $query->paginate($pagination['page'], $pagination['page_size']);
+        $this->query = $query;
     }
 
     /**
      * Get the data from the source
+     * @param Parameters $parameters
      * @return array|\PropelArrayCollection
      */
-    public function getData()
+    public function getData(Parameters $parameters)
     {
+        $this->parameters = $parameters;
+
+        // Get the PropelModelPager instance
+        $this->pager = $this->query->paginate($parameters->page, $parameters->pageSize);
+
         if (!$this->data) {
             $this->data = $this->pager->getResults()->getData();
         }
@@ -84,6 +88,7 @@ class PropelDataSource implements DataSourceInterface
     }
 
     /**
+     * Check if there's pagination required
      * @return bool
      */
     public function haveToPaginate()

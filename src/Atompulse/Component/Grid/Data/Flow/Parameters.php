@@ -10,6 +10,12 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  * @package Atompulse\Component\Grid\Data\Flow
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
+ *
+ * @property integer page
+ * @property integer pageSize
+ * @property array filters
+ * @property array sorters
+ *
  */
 class Parameters implements DataContainerInterface
 {
@@ -20,26 +26,22 @@ class Parameters implements DataContainerInterface
      */
     public function __construct(array $parameters = [])
     {
+        $this->validProperties = [
+            'page' => 'int|null',
+            'pageSize' => 'int|null',
+            'filters' => 'array|null',
+            'sorters' => 'array|null'
+        ];
+
+        $this->defaultValues = [
+            'page' => 1,
+            'pageSize' => 10
+        ];
+
         if ($parameters !== null) {
             return $this->fromArray($parameters);
         }
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function all()
-    {
-        return $this->normalizeData();
-    }
-
-    /**
-     * @return array
-     */
-    public function keys()
-    {
-        return array_keys($this->normalizeData());
     }
 }

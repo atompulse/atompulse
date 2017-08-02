@@ -2,6 +2,7 @@
 
 namespace Atompulse\Component\Grid;
 
+use Atompulse\Component\Grid\Configuration\GridConfiguration;
 use Atompulse\Component\Grid\Data\Flow\Parameters;
 use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
 
@@ -14,38 +15,30 @@ use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
 interface DataGridInterface 
 {
     /**
-     * Set data flow parameters - pagination, filters, sorters
+     * Create data grid instance
+     * @param GridConfiguration $config
+     */
+    public function __construct(GridConfiguration $config);
+
+    /**
+     * Set the data source
+     * @param DataSourceInterface $ds
+     * @return DataGridInterface
+     */
+    public function setDataSource(DataSourceInterface $ds);
+
+    /**
+     * Set parameters
      * @param Parameters $parameters
      * @return mixed
      */
     public function setParameters(Parameters $parameters);
 
     /**
-     * Set the data source
-     * @param DataSourceInterface $ds
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    public function setDataSource(DataSourceInterface $ds);
-
-    /**
-     * Resolve the query
-     * @param mixed $query
-     * @param DataSourceInterface $ds
-     * @return mixed
-     */
-    public function resolve($query, DataSourceInterface $ds = null);
-
-//    /**
-//     * Process the data from the data source
-//     * @return \Atompulse\Component\Grid\DataGrid
-//     */
-//    public function processData();
-
-    /**
-     * Get the processed grid data
+     * Get the grid data
      * @return array
      */
-    public function getGridData();
+    public function getData();
 
     /**
      * Get the grid meta data

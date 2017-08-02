@@ -1,6 +1,7 @@
 <?php
 namespace Atompulse\Component\Grid\Data\Source;
 
+use Atompulse\Component\Grid\Data\Flow\Parameters;
 use Sokil\Mongo\Paginator;
 
 /**
@@ -12,48 +13,44 @@ use Sokil\Mongo\Paginator;
 class MongoDataSource implements DataSourceInterface
 {
     /**
-     * @var array
+     * @var Parameters
      */
-    protected $pagination = ['page' => 1, 'page_size' => 10];
-
-    /**
-     * @var Paginator
-     */
-    protected $pager = false;
+    protected $parameters = null;
 
     /**
      * @var mixed
      */
-    protected $data = false;
+    protected $query = null;
 
     /**
-     * @param mixed $query
-     * @param array $pagination
+     * @var Paginator
      */
-    public function __construct($query = null, $pagination = ['page' => 1, 'page_size' => 10])
-    {
-        if ($query) {
-            $this->setup($query, $pagination);
-        }
-    }
+    protected $pager = null;
 
     /**
-     * @param mixed $query
-     * @param array $pagination
+     * @var mixed
      */
-    public function setup($query, $pagination = ['page' => 1, 'page_size' => 10])
+    protected $data = null;
+
+    /**
+     * @param null $query
+     */
+    public function __construct($query = null)
     {
-        $this->pagination = $pagination ? $pagination : ['page' => 1, 'page_size' => 10];
-        // Get the PropelModelPager instance
-        $this->pager = $query->getQueryBuilder()->paginate($pagination['page'], $pagination['page_size']);
+        $this->query = $query;
     }
 
     /**
      * Get the data from the source
+     * @param Parameters $parameters
      * @return array
      */
-    public function getData()
+    public function getData(Parameters $parameters)
     {
+        $this->parameters = $parameters;
+
+        $this->pager = $this->query->getQueryBuilder()->paginate($parameters->page, $parameters->pageSize);
+
         if (!$this->data) {
             if ($this->pager->getTotalRowsCount() > 0) {
                 foreach ($this->pager as $row) {
@@ -91,7 +88,7 @@ class MongoDataSource implements DataSourceInterface
      */
     public function haveToPaginate()
     {
-        return (($this->pagination['page_size'] != 0) && ($this->pager->getTotalRowsCount() > $this->pagination['page_size']));
+        return (($this->parameters->pageSize != 0) && ($this->pager->getTotalRowsCount() > $this->parameters->pageSize));
     }
 
     /**
@@ -112,7 +109,7 @@ class MongoDataSource implements DataSourceInterface
     {
         $pages =[];
         $tmp = $this->pager->getCurrentPage() - floor($nrPages / 2);
-        $lastPage = (int) ceil($this->pager->getTotalRowsCount() / $this->pagination['page_size']);
+        $lastPage = (int) ceil($this->pager->getTotalRowsCount() / $this->parameters->pageSize);
         $check = $lastPage - $nrPages + 1;
         $limit = ($check > 0) ? $check : 1;
         $begin = ($tmp > 0) ? (($tmp > $limit) ? $limit : $tmp) : 1;

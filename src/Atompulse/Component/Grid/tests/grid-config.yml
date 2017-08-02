@@ -3,15 +3,26 @@ fields:
   id:
     visible: false
     type: number
-  nr_crt:
+  siren:
     visible: true
     type: number
-    label: Current Number
-    render: renderCurrentNumber
+    label: Siren Number
+    render: renderSirenNumber
   name:
     visible: true
     type: string
     label: Name
+  email:
+    visible: true
+    type: string
+    label: Name
+  phone:
+    visible: true
+    type: string
+    label: Phone
+  city:
+    visible: true
+    type: string
   description:
     visible: true
     type: virtual
@@ -25,7 +36,7 @@ actions:
   details:
     render: renderEdit
   edit:
-    with: [id]
+    with: [id, siren]
     render: renderEdit
   delete:
     with: [id]

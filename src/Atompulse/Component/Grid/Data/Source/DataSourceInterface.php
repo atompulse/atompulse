@@ -2,6 +2,8 @@
 
 namespace Atompulse\Component\Grid\Data\Source;
 
+use Atompulse\Component\Grid\Data\Flow\Parameters;
+
 /**
  * Interface DataSourceInterface
  * @package Atompulse\Component\Grid\Data\Source
@@ -11,17 +13,10 @@ namespace Atompulse\Component\Grid\Data\Source;
 interface DataSourceInterface
 {
     /**
-     * @param mixed $query
-     * @param array $pagination
-     * @return void
-     */
-    public function setup($query, $pagination = ['page' => 1, 'page_size' => 10]);
-
-    /**
      * Get the data from the source
      * @return
      */
-    public function getData();
+    public function getData(Parameters $parameters);
 
     /**
      * Current number of records

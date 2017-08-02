@@ -19,6 +19,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  * @property string css
  * @property string cell_css
  * @property string width
+ * @property string scope
  */
 class GridField implements DataContainerInterface
 {
@@ -44,7 +45,8 @@ class GridField implements DataContainerInterface
             'render' => 'string|null',
             'css' => 'string|null',
             'cell_css' => 'string|null',
-            'width' => 'string|null'
+            'width' => 'string|null',
+            'scope' => 'string|null',
         ];
 
         $this->defaultValues = [
@@ -54,7 +56,7 @@ class GridField implements DataContainerInterface
             'render' => null,
             'css' => null,
             'cell_css' => null,
-            'width' => ''
+            'width' => '',
         ];
 
         if ($field !== null) {
