@@ -6,6 +6,7 @@ namespace Atompulse\Component\Data\Xml;
  * Class XmlDebug
  * @package Atompulse\Component\Data
  *
+ * @author Rowan Collins
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
 class XmlDebug
@@ -31,7 +32,7 @@ class XmlDebug
 
         // Get all the namespaces declared at the *root* of this document
         // All the items we're looking at are in the same document, so we only need do this once
-        $doc_ns = $sxml->getDocNamespaces(false);
+        /* $doc_ns = $sxml->getDocNamespaces(false); */
 
         $dump = '';
         // Note that the header is added at the end, so we can add stats
@@ -49,7 +50,7 @@ class XmlDebug
             // It's surprisingly hard to find something which behaves consistently differently for an attribute and an element within SimpleXML
             // The below relies on the fact that the DOM makes a much clearer distinction
             // Note that this is not an expensive conversion, as we are only swapping PHP wrappers around an existing LibXML resource
-            if (dom_import_simplexml($item) instanceOf DOMAttr) {
+            if (dom_import_simplexml($item) instanceOf \DOMAttr) {
                 $dump .= $indent . 'Attribute {' . PHP_EOL;
 
                 // To what namespace does this attribute belong? Returns array( alias => URI )
@@ -206,7 +207,7 @@ class XmlDebug
 
         // Get all the namespaces declared at the *root* of this document
         // All the items we're looking at are in the same document, so we only need do this once
-        $doc_ns = $sxml->getDocNamespaces(false);
+        /* $doc_ns = $sxml->getDocNamespaces(false); */
 
         $dump = '';
         // Note that the header is added at the end, so we can add stats
@@ -222,7 +223,7 @@ class XmlDebug
             // It's surprisingly hard to find something which behaves consistently differently for an attribute and an element within SimpleXML
             // The below relies on the fact that the DOM makes a much clearer distinction
             // Note that this is not an expensive conversion, as we are only swapping PHP wrappers around an existing LibXML resource
-            if (dom_import_simplexml($root_item) instanceOf DOMAttr) {
+            if (dom_import_simplexml($root_item) instanceOf \DOMAttr) {
                 // To what namespace does this attribute belong? Returns array( alias => URI )
                 $ns = $root_item->getNamespaces(false);
                 if (key($ns)) {
@@ -271,7 +272,7 @@ class XmlDebug
      * "Private" function to perform the recursive part of self::simplexmlTree()
      * Do not call this function directly or rely on its function signature remaining stable
      */
-    public static function simplexmlTreeRecursivelyProcessNode($item, $depth, $include_string_content, $indent, $content_extract_size)
+    public static function simplexmlTreeRecursivelyProcessNode(mixed $item, integer $depth, bool $include_string_content, bool $indent, integer $content_extract_size)
     {
         $dump = '';
 
