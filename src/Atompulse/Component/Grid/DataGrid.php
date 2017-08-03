@@ -44,11 +44,6 @@ class DataGrid implements DataGridInterface
     /**
      * @var array
      */
-    protected $gridData = null;
-
-    /**
-     * @var array
-     */
     protected $gridFieldsOrder = [];
 
     /**
@@ -118,7 +113,25 @@ class DataGrid implements DataGridInterface
             throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
         }
 
-        return $this->dataSource->getData($this->parameters);
+        $this->processGridFieldsOrderSettings();
+
+        $dataSourceData = $this->dataSource->getData($this->parameters);
+
+        $metaData = [
+            "page" => (int) $this->dataSource->getCurrentPageNumber(),
+            "total" => (int)$this->dataSource->getTotalRecords(),
+            "total_available" => (int) $this->dataSource->getCurrentNumberOfRecords(),
+            "total_pages" => (int)$this->dataSource->getTotalPages(),
+            "pages" => (array)$this->dataSource->getPages(),
+            "have_to_paginate" => (boolean)$this->dataSource->haveToPaginate()
+        ];
+
+        $output = [
+            "data" => $this->normalizeDataSourceData($dataSourceData),
+            'meta' => $metaData
+        ];
+
+        return $output;
     }
 
     /**
@@ -184,7 +197,7 @@ class DataGrid implements DataGridInterface
             throw new \Exception("Parameters not given, make sure you have passed a correct Parameters instance using DataGrid::setParameters");
         }
 
-        return ['page' => $this->parameters->page, 'page_size' => $this->parameters->pageSize];
+        return ['page' => $this->parameters->page, 'page-size' => $this->parameters->pageSize];
     }
 
     /**
@@ -222,7 +235,7 @@ class DataGrid implements DataGridInterface
                             $this->gridCustomRenders[$idx] = $field->render;
                         }
                         $header[$idx]['aTargets'][] = $this->gridFieldsOrder[$field->name];
-                        $header[$idx]['sTitle'] = $field->label ? $field->label : $field->name;
+                        $header[$idx]['sTitle'] = $field->label ? $field->label : Transform::camelize($field->name);
                         $header[$idx]['bVisible'] = $field->visible;
                         $header[$idx]['bSortable'] = $field->sort;
                         $header[$idx]['sWidth'] = $field->width;
@@ -241,46 +254,21 @@ class DataGrid implements DataGridInterface
         return $this;
     }
 
-
-    /**
-     * Prepare the grid data
-     * @return \Atompulse\Component\Grid\DataGrid
-     */
-    protected function prepareGridData()
-    {
-        if (!$this->gridData) {
-            $this->processGridFieldsOrderSettings();
-            $output = ["aaData" => $this->normalizeDataSourceData()];
-
-            $metaData = [
-                "iPage" => (int) $this->dataSource->getCurrentPageNumber(),
-                "iTotalRecords" => (int)$this->dataSource->getTotalRecords(),
-                "iTotalDisplayRecords" => (int) $this->dataSource->getCurrentNumberOfRecords(),
-                "iTotalPages" => (int)$this->dataSource->getTotalPages(),
-                "iPages" => (array)$this->dataSource->getPages(),
-                "iPaginate" => (boolean)$this->dataSource->haveToPaginate()
-            ];
-
-            $this->gridData = array_merge($metaData, $output);
-        }
-
-        return $this;
-    }
-
     /**
      * Transform DataSource data to DataGrid compatible data structure
      * @return array
      */
-    protected function normalizeDataSourceData()
+    protected function normalizeDataSourceData(array $data)
     {
         $normalizedData = [];
+        $fields = array_keys($this->gridFieldsOrder);
 
-        foreach ($this->dataSource->getData() as $row) {
+        foreach ($data as $row) {
             $rowSet = [];
             foreach ($row as $field => $value) {
                 $field = Transform::unCamelize($field);
-                // skip items that are not defined
-                if (!isset($this->config['fields']['settings'][$field])) {
+                // skip fields that are not defined
+                if (!in_array($field, $fields)) {
                     continue;
                 }
                 // assign order in the result array
@@ -288,8 +276,8 @@ class DataGrid implements DataGridInterface
             }
             // add virtual fields entries
             if (count($this->virtualFields)) {
-                foreach ($this->virtualFields as $vcName) {
-                    $rowSet[$this->gridFieldsOrder[$vcName]] = '';
+                foreach ($this->virtualFields as $virtualField) {
+                    $rowSet[$this->gridFieldsOrder[$virtualField]] = null;
                 }
             }
             // add blank entry for actions

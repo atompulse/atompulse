@@ -11,8 +11,8 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  *
- * @property integer page
- * @property integer pageSize
+ * @property integer page Current page number
+ * @property integer pageSize Number of items per page
  * @property array filters
  * @property array sorters
  *
@@ -27,8 +27,8 @@ class Parameters implements DataContainerInterface
     public function __construct(array $parameters = [])
     {
         $this->validProperties = [
-            'page' => 'int|null',
-            'pageSize' => 'int|null',
+            'page' => 'integer|null',
+            'pageSize' => 'integer|null',
             'filters' => 'array|null',
             'sorters' => 'array|null'
         ];
