@@ -48,7 +48,7 @@ angular.module('Web.Components')
                             available: 0,
                             pageRanges: [],
                             pageTotal: 0,
-                            needsPaginations: false
+                            needsPagination: false
                         },
 
                         dsResponseHandler: null
@@ -392,18 +392,18 @@ angular.module('Web.Components')
                      */
                     $this.setData = function (data)
                     {
-                        //console.log('data received:', moment().format('h:mm:ss a'));
+                        //console.log('data received:', data, moment().format('h:mm:ss a'));
                         // check for datatables like structure specific for Atompulse\Component\Grid\DataGrid
-                        if (!_.isUndefined(data.ds.aaData)) {
-                            $private.prepareGridData(data.ds.aaData);
+                        if (!_.isUndefined(data.ds.data)) {
+                            $private.prepareGridData(data.ds.data);
                             $private.setPaginationData(
                                 {
-                                    total:              parseInt(data.ds.iTotalRecords),
-                                    available:          parseInt(data.ds.iTotalDisplayRecords),
-                                    page:               parseInt(data.ds.iPage),
-                                    pageTotal:          parseInt(data.ds.iTotalPages),
-                                    pageRanges:         data.ds.iPages,
-                                    needsPaginations:   data.ds.iPaginate
+                                    total:              parseInt(data.ds.meta.total),
+                                    available:          parseInt(data.ds.meta.total_available),
+                                    page:               parseInt(data.ds.meta.page),
+                                    pageTotal:          parseInt(data.ds.meta.total_pages),
+                                    pageRanges:         data.ds.meta.pages,
+                                    needsPagination:   data.ds.meta.have_to_paginate
                                 }
                             );
                         } else {
@@ -1532,12 +1532,12 @@ angular.module('Web.Components')
                     $private.addDtPagination = function ()
                     {
                         $private.params["page"] = {
-                            name: "iDisplayStart",
+                            name: "page",
                             value: $this.pagination.page
                         };
 
                         $private.params["size"] = {
-                            name: "iDisplayLength",
+                            name: "page-size",
                             value: $this.pagination.size
                         };
 
