@@ -72,7 +72,7 @@ angular.module('Web.Components')
                     || _.isUndefined(window.google.maps.LatLngBounds)
                     || _.isUndefined(window.google.maps.Animation)
                     || _.isUndefined(window.google.maps.places) ) {
-                    //console.log ('Web.Components.GoogleMap: container with id ['+$private.containerId+'] not found, retrying in 1 sec');
+
                     setTimeout(function () {
                         $private.init(callback);
                     }, 1000);
@@ -159,7 +159,7 @@ angular.module('Web.Components')
                             callback.call(callback, {marker: marker});
                         }
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -217,7 +217,7 @@ angular.module('Web.Components')
                     if (types) {
                         params['types'] = types;
                     }
-                    //console.log("$private.getPlacePredictions params:", params);
+
                     $private.predService.getPlacePredictions(params, callback);
                 } else {
                     throw 'Web.Components.GoogleMap::getPlacePredictions: Prediction Service Not Ready!';
@@ -290,7 +290,7 @@ angular.module('Web.Components')
                             }
                         }
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -351,7 +351,7 @@ angular.module('Web.Components')
                             });
                         });
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -435,7 +435,7 @@ angular.module('Web.Components')
                     if (!_.isNull($private.service)) {
                         $private.getPlacePredictions(queryString, types, countryIsoCode, callback);
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -508,7 +508,7 @@ angular.module('Web.Components')
                         }
                         $private.map.setCenter(LatLng);
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -529,7 +529,7 @@ angular.module('Web.Components')
                     if (!_.isNull($private.map)) {
                         $private.map.setZoom(zoom || 10);
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 
@@ -589,7 +589,7 @@ angular.module('Web.Components')
                     if (!_.isNull($private.gm)) {
                         $private.gm.event.addListener(marker, event, callback);
                     } else {
-                        //TODO: should we return exception ?
+                        throw 'Web.Components.GoogleMap Service not initialized';
                     }
                 };
 

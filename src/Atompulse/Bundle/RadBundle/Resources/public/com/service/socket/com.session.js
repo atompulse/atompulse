@@ -58,17 +58,16 @@ angular.module('Web.Components')
             SocketSession.active = true;
             SocketSession.calling = false;
 
-            //console.log('Established SocketSession:', conn);
 
             if (_.size(SocketSession.subscribers)) {
-                //console.log('Launching Subscribe Promises');
+
                 _.each(SocketSession.subscribers, function (promise) {
                     promise();
                 });
             }
 
             if (_.size(SocketSession.publishersQueue)) {
-                //console.log('Launching Publish Promises ', SocketSession.publishersQueue);
+
                 _.each(SocketSession.publishersQueue, function (promise, idx) {
                     promise.fulfill();
                 });
@@ -95,9 +94,7 @@ angular.module('Web.Components')
             if (typeof(SocketSession.settings.onClosedCallback) !== 'undefined') {
                 SocketSession.settings.onClosedCallback.call(SocketSession.settings.onClosedCallback, code, reason, details);
             }
-
             // WAMP SocketSession closed here ..
-            //console.log('Closed SocketSession:', code, reason, detail);
         };
 
         /**
@@ -112,7 +109,6 @@ angular.module('Web.Components')
             // depending on the availability of the connection.
             var promise = function () {
                 SocketSession.conn.subscribe(channel, function(channel, event) {
-                    //console.log("On Channel:", channel, " Received event:", event);
                     eventHandler.apply(eventHandler, [channel, event]);
                 });
             };
@@ -136,7 +132,7 @@ angular.module('Web.Components')
             if (SocketSession.active) {
                 SocketSession.conn.unsubscribe(channel);
             } else {
-                // TODO: it might be possible to have a promise to subscribe that was not fullfilled yet if the connection is not active
+                throw "Session not active";
             }
         };
 
@@ -171,7 +167,6 @@ angular.module('Web.Components')
                         }
                     }
 
-                    //console.log("Publishing on Channel:", channel, " Event:", event, 'Params: excldude', exclude, ' eligible:', eligible);
                     SocketSession.conn.publish(channel, event, exclude, eligible);
 
                     // promise is fulfilled

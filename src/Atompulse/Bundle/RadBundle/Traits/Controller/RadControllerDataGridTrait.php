@@ -170,11 +170,6 @@ trait RadControllerDataGridTrait
             $sorters = $mappedParams['data-sorters'];
         }
 
-        //map sorting params
-        foreach ($sorters as $sortColumn => $sortValue) {
-            $sortParams[$sortColumn] = $sortValue;
-        }
-
         return $sorters;
     }
 
