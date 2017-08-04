@@ -150,10 +150,10 @@ class ArrayDataSource implements DataSourceInterface
 
     /**
      * Set have to paginate
-     * @param boolean $haveToPaginate
-     * @return boolean
+     * @param bool $haveToPaginate
+     * @return bool
      */
-    public function setHaveToPaginate(boolean $haveToPaginate)
+    public function setHaveToPaginate(bool $haveToPaginate)
     {
         return $this->paginationData['has_pagination'] = $haveToPaginate;
     }
