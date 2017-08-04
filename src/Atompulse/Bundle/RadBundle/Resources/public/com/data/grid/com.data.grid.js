@@ -83,7 +83,7 @@ angular.module('Web.Components')
                         uriEngineStatus: true,
                         uriEnginePersistentNameSpace: false,
                         // caches
-                        __renderViewCache: {row_cell:{}, row_css:{}, row_action:{}, column_row: {}, column_header_css: {}},
+                        __renderViewCache: {row_cell: {}, row_css: {}, row_action: {}, column_row: {}, column_css: {}, column_header_css: {}},
                         __actionsWithRenderers: null,
                         __countActionsWithRenderers: null,
                         __countVisibleColumns: null,
@@ -257,7 +257,7 @@ angular.module('Web.Components')
                             $private.__countVisibleColumns = 0;
                             _.each($this.grid.metaData.header, function (headerDefinition) {
                                 // set visible column count
-                                $private.__countVisibleColumns += (headerDefinition.bVisible ? 1 : 0);
+                                $private.__countVisibleColumns += (headerDefinition.visible ? 1 : 0);
                             });
                         }
 
@@ -1343,11 +1343,37 @@ angular.module('Web.Components')
                                'sorting': column.sortable
                             };
 
-                            if (column.class) {
-                                output[column.class] = true;
+                            if (column.headerClass) {
+                                output[column.headerClass] = true;
                             }
 
                             $private.__renderViewCache['column_header_css'][cacheId] = output;
+                        }
+
+                        return output;
+                    };
+
+                    /**
+                     * Get column css class
+                     * @param column
+                     * @returns {*}
+                     */
+                    $this.getColumnCssClass = function (column)
+                    {
+                        var output = {},
+                            cacheId = column.uid;
+
+                        if (!_.isUndefined($private.__renderViewCache['column_css'][cacheId])) {
+
+                            return $private.__renderViewCache['column_css'][cacheId];
+                        } else {
+                            output = {};
+
+                            if (column.headerClass) {
+                                output[column.headerClass] = true;
+                            }
+
+                            $private.__renderViewCache['column_css'][cacheId] = output;
                         }
 
                         return output;
@@ -1424,21 +1450,21 @@ angular.module('Web.Components')
                             // column mapping
                             var column = {
                                 uid: 'col_uid_'+_.uniqueId(),
-                                label: headerDefinition.sTitle,
-                                internal: !headerDefinition.bVisible,
-                                order: headerDefinition.bVisible ? columnsOrderIdx : false,
-                                show: headerDefinition.bVisible,
-                                field: $this.grid.metaData.columnsOrderMap.pos2name[headerDefinition.aTargets[0]],
-                                key: headerDefinition.aTargets[0],
-                                isAction: headerDefinition.bAction,
-                                width: headerDefinition.sWidth,
-                                'class': headerDefinition.sClass ? headerDefinition.sClass : '', // column header class
+                                label: headerDefinition.label,
+                                internal: !headerDefinition.visible,
+                                order: headerDefinition.visible ? columnsOrderIdx : false,
+                                show: headerDefinition.visible,
+                                field: $this.grid.metaData.columnsOrderMap.pos2name[headerDefinition.targets[0]],
+                                key: headerDefinition.targets[0],
+                                isAction: headerDefinition.isAction,
+                                width: headerDefinition.width,
+                                headerClass: headerDefinition.headerClass ? headerDefinition.headerClass : '', // column header class
                                 cellClass: headerDefinition.cellClass ? headerDefinition.cellClass : '', // cell class
-                                sortable: headerDefinition.bSortable
+                                sortable: headerDefinition.sortable
                             };
 
                             // set visible column count
-                            $private.__countVisibleColumns += (headerDefinition.bVisible ? 1 : 0);
+                            $private.__countVisibleColumns += (headerDefinition.visible ? 1 : 0);
 
                             headerData[column.field] = column;
 
@@ -1502,7 +1528,7 @@ angular.module('Web.Components')
 
                         if (!_.isUndefined(actionSettings)) {
                             if (actionSettings['with'] === '*') {
-                                return row;
+                                return $this.getAssocFieldsValuesFromRow(row);
                             } else {
                                 _.each(actionSettings['with'], function (field, key) {
                                     params[field] = row[key];
@@ -1595,8 +1621,8 @@ angular.module('Web.Components')
                      *
                      * @param paginationData
                      *  {
-                     *      total:      data.ds.iTotalRecords,
-                     *      available:  data.ds.iTotalDisplayRecords
+                     *      total:      data.ds.total,
+                     *      available:  data.ds.total_available
                      *  }
                      */
                     $private.setPaginationData = function (paginationData)
@@ -1642,6 +1668,7 @@ angular.module('Web.Components')
                             if ($pagination.page > 1) {
                                 UriEngine.addParam($private.getOwnName('dgp'), $pagination.page);
                             } else {
+                                // pagination reset
                                 if (UriEngine.getParam($private.getOwnName('dgp'))) {
                                     UriEngine.removeParam($private.getOwnName('dgp'));
                                 }
