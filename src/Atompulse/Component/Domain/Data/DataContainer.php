@@ -39,6 +39,11 @@ trait DataContainer
     protected $properties = [];
 
     /**
+     * @var string
+     */
+    private $propertyNotValidErrorMessage = 'Property ["%s"] not valid for this class ["%s"]';
+
+    /**
      * @inheritdoc
      * @param string $property
      * @param mixed $value Value of property
@@ -49,7 +54,7 @@ trait DataContainer
     public function __set($property, $value)
     {
         if (!empty($this->validProperties) && !array_key_exists($property, $this->validProperties)) {
-            throw new PropertyNotValidException("Property [$property] not valid for this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
 
         // Check if there's a specialized setter method
@@ -75,7 +80,7 @@ trait DataContainer
     public function &__get($property)
     {
         if (!$this->isValidProperty($property)) {
-            throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
 
         $propertyValue = null;
@@ -147,7 +152,7 @@ trait DataContainer
                 $this->properties[$property] = $value;
             }
         } else {
-            throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
     }
 
@@ -182,7 +187,7 @@ trait DataContainer
                         );
                 }
             } else {
-                throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+                throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
             }
         }
 
@@ -257,7 +262,7 @@ trait DataContainer
             if ($this->isValidProperty($property)) {
                 return $this->normalizeValue($this->$property);
             } else {
-                throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+                throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
             }
         }
 
@@ -266,6 +271,17 @@ trait DataContainer
         }
 
         return $data;
+    }
+
+    /**
+     * Set custom $errorMessage for PropertyNotValidException
+     * @see There are 2 string parameters that will be replaced in the message using sprintf
+     * first is the invalid $property and the second is the current class name
+     * @param string $errorMessage
+     */
+    public function setPropertyNotValidErrorMessage(string $errorMessage)
+    {
+        $this->propertyNotValidErrorMessage = $errorMessage;
     }
 
     /**
