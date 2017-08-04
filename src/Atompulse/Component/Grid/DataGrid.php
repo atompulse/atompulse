@@ -100,7 +100,7 @@ class DataGrid implements DataGridInterface
 
     /**
      * Get the grid data
-     * @return DataGrid
+     * @return array
      * @throws \Exception
      */
     public function getData()
@@ -116,21 +116,17 @@ class DataGrid implements DataGridInterface
 
         $dataSourceData = $this->dataSource->getData($this->parameters);
 
-        $metaData = [
-            "page" => (int) $this->dataSource->getCurrentPageNumber(),
-            "total" => (int)$this->dataSource->getTotalRecords(),
-            "total_available" => (int) $this->dataSource->getCurrentNumberOfRecords(),
-            "total_pages" => (int)$this->dataSource->getTotalPages(),
-            "pages" => (array)$this->dataSource->getPages(),
-            "have_to_paginate" => (boolean)$this->dataSource->haveToPaginate()
+        return [
+            'data' => $this->normalizeDataSourceData($dataSourceData),
+            'meta' => [
+                'have_to_paginate' => (bool) $this->dataSource->haveToPaginate(),
+                'page'             => (int) $this->dataSource->getCurrentPageNumber(),
+                'pages'            => (array) $this->dataSource->getPages(),
+                'total'            => (int) $this->dataSource->getTotalRecords(),
+                'total_available'  => (int) $this->dataSource->getCurrentNumberOfRecords(),
+                'total_pages'      => (int) $this->dataSource->getTotalPages(),
+            ],
         ];
-
-        $output = [
-            "data" => $this->normalizeDataSourceData($dataSourceData),
-            'meta' => $metaData
-        ];
-
-        return $output;
     }
 
     /**
