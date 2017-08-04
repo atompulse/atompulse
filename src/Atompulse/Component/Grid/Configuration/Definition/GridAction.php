@@ -34,8 +34,10 @@ class GridAction implements DataContainerInterface
             'with' => '*'
         ];
 
+        $this->setPropertyNotValidErrorMessage('GridAction property ["%s"] not supported');
+
         if ($action !== null) {
-            return $this->fromArray($action);
+            return $this->fromArray($action, false);
         }
 
         return $this;

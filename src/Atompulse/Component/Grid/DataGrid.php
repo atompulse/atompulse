@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Atompulse\Component\Data\Transform;
 use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
-use Atompulse\Component\Grid\Data\Source\PropelDataSource;
 use Atompulse\Component\Grid\Configuration\GridConfiguration;
 
 
@@ -216,15 +215,15 @@ class DataGrid implements DataGridInterface
             foreach ($this->config->fields as $field) {
                 switch ($field->type) {
                     case GridField::FIELD_TYPE_ACTIONS :
-                        $header[$idx]['aTargets'][] = $idx;
-                        $header[$idx]['sTitle'] = $field->label ? $field->label : 'Actions';
-                        $header[$idx]['bVisible'] = $field->visible;
-                        $header[$idx]['bSortable'] = $field->sort;
-                        $header[$idx]['sWidth'] = $field->width;
-                        $header[$idx]['sClass'] = $field->css;
+                        $header[$idx]['targets'][] = $idx;
+                        $header[$idx]['label'] = $field->label ? $field->label : 'Actions';
+                        $header[$idx]['visible'] = $field->visible;
+                        $header[$idx]['sortable'] = $field->sort;
+                        $header[$idx]['width'] = $field->width;
+                        $header[$idx]['headerClass'] = $field->header_css;
                         $header[$idx]['cellClass'] = $field->cell_css;
-                        $header[$idx]['bAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
-                        $header[$idx]['fType'] = $field->type;
+                        $header[$idx]['isAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
+                        $header[$idx]['fieldType'] = $field->type;
                         break;
                     case GridField::FIELD_TYPE_VIRTUAL :
                         $this->virtualFields[] = $field->name;
@@ -234,15 +233,15 @@ class DataGrid implements DataGridInterface
                         if ($field->render) {
                             $this->gridCustomRenders[$idx] = $field->render;
                         }
-                        $header[$idx]['aTargets'][] = $this->gridFieldsOrder[$field->name];
-                        $header[$idx]['sTitle'] = $field->label ? $field->label : Transform::camelize($field->name);
-                        $header[$idx]['bVisible'] = $field->visible;
-                        $header[$idx]['bSortable'] = $field->sort;
-                        $header[$idx]['sWidth'] = $field->width;
-                        $header[$idx]['sClass'] = $field->css;
+                        $header[$idx]['targets'][] = $this->gridFieldsOrder[$field->name];
+                        $header[$idx]['label'] = $field->label ? $field->label : Transform::camelize($field->name);
+                        $header[$idx]['visible'] = $field->visible;
+                        $header[$idx]['sortable'] = $field->sort;
+                        $header[$idx]['width'] = $field->width;
+                        $header[$idx]['headerClass'] = $field->header_css;
                         $header[$idx]['cellClass'] = $field->cell_css;
-                        $header[$idx]['bAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
-                        $header[$idx]['fType'] = $field->type;
+                        $header[$idx]['isAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
+                        $header[$idx]['fieldType'] = $field->type;
                         break;
                 }
                 $idx++;
@@ -322,8 +321,13 @@ class DataGrid implements DataGridInterface
     protected function processGridFieldsOrderSettings()
     {
         if (!count($this->gridFieldsOrder)) {
-            $definedFieldsOrder = array_flip($this->config->order);
-            $maxOrderIdx = max($definedFieldsOrder);
+            if ($this->config->order) {
+                $definedFieldsOrder = array_flip($this->config->order);
+                $maxOrderIdx = max($definedFieldsOrder);
+            } else {
+                $definedFieldsOrder = [];
+                $maxOrderIdx = 0;
+            }
             // add order definition for fields which didn't had the order defined
             /** @var GridField $field */
             foreach ($this->config->fields as $field) {

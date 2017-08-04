@@ -36,7 +36,9 @@ class GridConfiguration implements DataContainerInterface
             'order' => 'array|null',
         ];
 
-        $this->fromArray($configuration);
+        $this->setPropertyNotValidErrorMessage('GridConfiguration section ["%s"] not supported');
+
+        $this->fromArray($configuration, false);
 
         $this->validateConfiguration();
 

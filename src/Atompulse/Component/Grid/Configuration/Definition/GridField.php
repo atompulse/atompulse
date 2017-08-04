@@ -43,7 +43,7 @@ class GridField implements DataContainerInterface
             'label' => 'string|null',
             'sort' => 'boolean|null',
             'render' => 'string|null',
-            'css' => 'string|null',
+            'header_css' => 'string|null',
             'cell_css' => 'string|null',
             'width' => 'string|null',
             'scope' => 'string|null',
@@ -54,13 +54,15 @@ class GridField implements DataContainerInterface
             'type' => GridField::FIELD_TYPE_STRING,
             'sort' => false,
             'render' => null,
-            'css' => null,
+            'header_css' => null,
             'cell_css' => null,
             'width' => '',
         ];
 
+        $this->setPropertyNotValidErrorMessage('GridField property ["%s"] not supported');
+
         if ($field !== null) {
-            return $this->fromArray($field);
+            return $this->fromArray($field, false);
         }
 
         return $this;
