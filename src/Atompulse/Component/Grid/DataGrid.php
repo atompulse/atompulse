@@ -115,7 +115,7 @@ class DataGrid implements DataGridInterface
         $this->processGridFieldsOrderSettings();
 
         $dataSourceData = $this->dataSource->getData($this->parameters);
-        
+
         $metaData = [
             "page" => (int) $this->dataSource->getCurrentPageNumber(),
             "total" => (int)$this->dataSource->getTotalRecords(),
@@ -124,12 +124,12 @@ class DataGrid implements DataGridInterface
             "pages" => (array)$this->dataSource->getPages(),
             "have_to_paginate" => (boolean)$this->dataSource->haveToPaginate()
         ];
-        
+
         $output = [
             "data" => $this->normalizeDataSourceData($dataSourceData),
             'meta' => $metaData
         ];
-        
+
         return $output;
     }
 
