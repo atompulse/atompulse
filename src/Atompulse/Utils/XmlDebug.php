@@ -1,6 +1,6 @@
 <?php
 
-namespace Atompulse\Component\Data\Xml;
+namespace Atompulse\Utils;
 
 /**
  * Class XmlDebug
@@ -43,6 +43,7 @@ class XmlDebug
         // Numeric array indexes, however, operate consistently: $node[0] just returns the node
         $item_index = 0;
         while (isset($sxml[$item_index])) {
+            /** @var \SimpleXMLElement $item */
             $item = $sxml[$item_index];
             $item_index++;
 
@@ -96,6 +97,7 @@ class XmlDebug
                 }
 
                 foreach ($all_ns as $ns_alias => $ns_uri) {
+                    /** @var \SimpleXMLElement $children */
                     $children = $item->children($ns_uri);
                     $attributes = $item->attributes($ns_uri);
 
@@ -270,7 +272,7 @@ class XmlDebug
      * "Private" function to perform the recursive part of self::simplexmlTree()
      * Do not call this function directly or rely on its function signature remaining stable
      */
-    public static function simplexmlTreeRecursivelyProcessNode($item, int $depth, bool $include_string_content, bool $indent, int $content_extract_size)
+    public static function simplexmlTreeRecursivelyProcessNode(\SimpleXMLElement $item, int $depth, bool $include_string_content, bool $indent, int $content_extract_size)
     {
         $dump = '';
 
