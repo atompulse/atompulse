@@ -233,10 +233,10 @@ trait DataContainer
      * Populate properties from input array
      * @param array $data
      * @param bool|true $skipExtraProperties Ignore extra properties that do not belong to the class
-     * @param bool|false $skipMissingProperties Enforce property existence checking in input $data
+     * @param bool|true $skipMissingProperties Ignore missing properties in input $data
      * @return $this
      */
-    public function fromArray(array $data, bool $skipExtraProperties = true, bool $skipMissingProperties = false)
+    public function fromArray(array $data, bool $skipExtraProperties = true, bool $skipMissingProperties = true)
     {
         $extraProperties = array_keys(array_diff_key($data, $this->validProperties));
 
