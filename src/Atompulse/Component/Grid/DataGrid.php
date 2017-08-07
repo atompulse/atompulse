@@ -4,8 +4,9 @@ namespace Atompulse\Component\Grid;
 
 use Atompulse\Component\Grid\Configuration\Definition\GridAction;
 use Atompulse\Component\Grid\Configuration\Definition\GridField;
+use Atompulse\Component\Grid\Data\Flow\OutputMetaData;
+use Atompulse\Component\Grid\Data\Flow\OutputMetaDataInterface;
 use Atompulse\Component\Grid\Data\Flow\Parameters;
-use Symfony\Component\HttpFoundation\Request;
 
 use Atompulse\Component\Data\Transform;
 use Atompulse\Component\Grid\Data\Source\DataSourceInterface;
@@ -63,6 +64,9 @@ class DataGrid implements DataGridInterface
      */
     protected $gridMetaData = null;
 
+    /** @var OutputMetaDataInterface */
+    protected $outputMetaDataMapper = null;
+
     /**
      * Create DataGrid Instance
      * @param GridConfiguration $config
@@ -116,21 +120,30 @@ class DataGrid implements DataGridInterface
 
         $dataSourceData = $this->dataSource->getData($this->parameters);
 
-        $metaData = [
-            "page" => (int) $this->dataSource->getCurrentPageNumber(),
-            "total" => (int)$this->dataSource->getTotalRecords(),
-            "total_available" => (int) $this->dataSource->getCurrentNumberOfRecords(),
-            "total_pages" => (int)$this->dataSource->getTotalPages(),
-            "pages" => (array)$this->dataSource->getPages(),
-            "have_to_paginate" => (boolean)$this->dataSource->haveToPaginate()
+        return [
+            'data' => $this->normalizeDataSourceData($dataSourceData),
+            'meta' => $this->outputMetaDataMapper->getOutputMetaData($this->dataSource),
         ];
+    }
 
-        $output = [
-            "data" => $this->normalizeDataSourceData($dataSourceData),
-            'meta' => $metaData
-        ];
+    /**
+     * @return \Atompulse\Component\Grid\Data\Flow\OutputMetaDataInterface
+     */
+    public function getOutputMetaDataMapper()
+    {
+        if (!$this->outputMetaDataMapper) {
+            $this->outputMetaDataMapper = new OutputMetaData();
+        }
 
-        return $output;
+        return $this->outputMetaDataMapper;
+    }
+
+    /**
+     * @param \Atompulse\Component\Grid\Data\Flow\OutputMetaDataInterface $outputMetaDataMapper
+     */
+    public function setOutputMetaDataMapper(OutputMetaDataInterface $outputMetaDataMapper)
+    {
+        $this->outputMetaDataMapper = $outputMetaDataMapper;
     }
 
     /**
