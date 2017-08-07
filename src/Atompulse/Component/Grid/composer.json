@@ -22,10 +22,6 @@
       "type": "vcs",
       "url": "https://github.com/atompulse/PropelBundle",
       "no-api": true
-    },
-    {
-      "type": "path",
-      "url": "/Users/petru.cojocar/workspace/atompulse/src/Atompulse/Component/Domain"
     }
   ],
   "require": {
