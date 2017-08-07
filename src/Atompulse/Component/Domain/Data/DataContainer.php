@@ -277,6 +277,7 @@ trait DataContainer
      * Set custom $errorMessage for PropertyNotValidException
      * @see There are 2 string parameters that will be replaced in the message using sprintf
      * first is the invalid $property and the second is the current class name
+     * @template 'Property ["%s"] not valid for this class ["%s"]'
      * @param string $errorMessage
      */
     public function setPropertyNotValidErrorMessage(string $errorMessage)
