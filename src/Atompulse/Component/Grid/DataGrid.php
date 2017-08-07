@@ -100,7 +100,7 @@ class DataGrid implements DataGridInterface
 
     /**
      * Get the grid data
-     * @return DataGrid
+     * @return array
      * @throws \Exception
      */
     public function getData()

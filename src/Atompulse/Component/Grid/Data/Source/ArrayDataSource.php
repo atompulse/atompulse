@@ -60,7 +60,7 @@ class ArrayDataSource implements DataSourceInterface
      */
     public function setCurrentPageNumber(int $page)
     {
-        $this->paginationData['page'] = $page;
+        $this->paginationData['current_page_number'] = $page;
     }
 
     /**
