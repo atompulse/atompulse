@@ -32,7 +32,6 @@ class XmlDebug
 
         // Get all the namespaces declared at the *root* of this document
         // All the items we're looking at are in the same document, so we only need do this once
-        /* $doc_ns = $sxml->getDocNamespaces(false); */
 
         $dump = '';
         // Note that the header is added at the end, so we can add stats
@@ -207,7 +206,6 @@ class XmlDebug
 
         // Get all the namespaces declared at the *root* of this document
         // All the items we're looking at are in the same document, so we only need do this once
-        /* $doc_ns = $sxml->getDocNamespaces(false); */
 
         $dump = '';
         // Note that the header is added at the end, so we can add stats
@@ -272,7 +270,7 @@ class XmlDebug
      * "Private" function to perform the recursive part of self::simplexmlTree()
      * Do not call this function directly or rely on its function signature remaining stable
      */
-    public static function simplexmlTreeRecursivelyProcessNode(mixed $item, integer $depth, bool $include_string_content, bool $indent, integer $content_extract_size)
+    public static function simplexmlTreeRecursivelyProcessNode($item, int $depth, bool $include_string_content, bool $indent, int $content_extract_size)
     {
         $dump = '';
 
