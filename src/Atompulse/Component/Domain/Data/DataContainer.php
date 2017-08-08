@@ -150,9 +150,9 @@ trait DataContainer
     public function addPropertyValue(string $property, $value)
     {
         if ($this->isValidProperty($property)) {
-            $requiredTypes = $this->getIntegritySpecification($property);
+            $integrityConstraints = $this->getIntegritySpecification($property);
             // add to array property type
-            if (in_array('array', $requiredTypes) && !is_array($value)) {
+            if (in_array('array', $integrityConstraints) && !is_array($value)) {
                 $this->properties[$property][] = $value;
             } else {
                 $this->properties[$property] = $value;
@@ -247,8 +247,9 @@ trait DataContainer
         foreach ($this->validProperties as $property => $integritySpecification) {
             if (!array_key_exists($property, $data) && !$skipMissingProperties) {
                 throw new PropertyMissingException("Property [$property] is missing from input array when using ".__CLASS__."::fromArray");
+            } elseif (array_key_exists($property, $data)) {
+                $this->$property = $data[$property];
             }
-            $this->$property = $data[$property];
         }
 
         return $this;
@@ -336,7 +337,7 @@ trait DataContainer
      */
     private function checkTypes(string $property, $value)
     {
-        $requiredTypes = $this->getIntegritySpecification($property);
+        $integrityConstraints = $this->getIntegritySpecification($property);
 
         $actualValueType = gettype($value);
 
@@ -348,16 +349,16 @@ trait DataContainer
             }
         }
 
-        if (count($requiredTypes)) {
+        if (count($integrityConstraints)) {
             // object check
             if ($actualValueType == 'object') {
-                if (!in_array(get_class($value), $requiredTypes)) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is instance of : [' . get_class($value).']');
+                if (!in_array(get_class($value), $integrityConstraints)) {
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $integrityConstraints).'], but given value is instance of : [' . get_class($value).']');
                 }
             } else {
                 // primitive type value
                 $isValidType = false;
-                foreach ($requiredTypes as $type) {
+                foreach ($integrityConstraints as $type) {
                     if ($type === 'object' && is_object($value)) {
                         $isValidType = true;
                         break;
@@ -382,7 +383,7 @@ trait DataContainer
                     }
                 }
                 if (!$isValidType) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes)."], but given value is: [$actualValueType]");
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $integrityConstraints)."], but given value is: [$actualValueType]");
                 }
             }
         }
