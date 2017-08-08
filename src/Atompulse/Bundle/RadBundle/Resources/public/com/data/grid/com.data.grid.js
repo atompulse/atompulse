@@ -1369,8 +1369,8 @@ angular.module('Web.Components')
                         } else {
                             output = {};
 
-                            if (column.headerClass) {
-                                output[column.headerClass] = true;
+                            if (column.cellClass) {
+                                output[column.cellClass] = true;
                             }
 
                             $private.__renderViewCache['column_css'][cacheId] = output;
