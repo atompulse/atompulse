@@ -118,11 +118,9 @@ class DataGrid implements DataGridInterface
 
         $this->processGridFieldsOrderSettings();
 
-        $dataSourceData = $this->dataSource->getData($this->parameters);
-
         return [
-            'data' => $this->normalizeDataSourceData($dataSourceData),
-            'meta' => $this->outputMetaDataMapper->getOutputMetaData($this->dataSource),
+            'data' => $this->normalizeDataSourceData($this->dataSource->getData($this->parameters)),
+            'meta' => $this->getOutputMetaDataMapper()->getOutputMetaData($this->dataSource),
         ];
     }
 
@@ -223,6 +221,7 @@ class DataGrid implements DataGridInterface
             $idx = 0;
             $this->processGridFieldsOrderSettings();
             $this->prepareGridActions();
+            $this->gridCustomRenders = [];
 
             /** @var GridField $field */
             foreach ($this->config->fields as $field) {
