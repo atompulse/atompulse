@@ -4,8 +4,8 @@
 try { angular.module('Web.Components') } catch(err) { angular.module('Web.Components', []) }
 
 angular.module('Web.Components')
-    .factory('Web.Components.DataContainerService', ['$sce',
-        function ($sce)
+    .factory('Web.Components.DataContainerService', [
+        function ()
         {
             var DataContainerService = {
 
@@ -44,19 +44,32 @@ angular.module('Web.Components')
                     $this.init = function ($model)
                     {
                         _.each ($model, function (defaultValue, property) {
-                            Object.defineProperty($this, property, {
-                                get: function () {
-                                    return $private.model[property];
-                                },
-                                set: function (value) {
-                                    $private.model[property] = value;
-                                },
-                                enumerable: true
-                            });
-                            $private.model[property] = defaultValue;
+                            $this.addProperty(property, defaultValue);
                         });
 
                         return $this;
+                    };
+
+                    /**
+                     * Add property to model
+                     * @param property
+                     * @param defaultValue
+                     */
+                    $this.addProperty = function (property, defaultValue)
+                    {
+                        defaultValue = defaultValue || null;
+
+                        Object.defineProperty($this, property, {
+                            get: function () {
+                                return $private.model[property];
+                            },
+                            set: function (value) {
+                                $private.model[property] = value;
+                            },
+                            enumerable: true
+                        });
+
+                        $private.model[property] = defaultValue;
                     };
 
                     /**
