@@ -225,35 +225,29 @@ class DataGrid implements DataGridInterface
 
             /** @var GridField $field */
             foreach ($this->config->fields as $field) {
+                $header[$idx]['field'] = $field->name;
+                $header[$idx]['fieldType'] = $field->type;
+                $header[$idx]['position'] = $this->gridFieldsOrder[$field->name];
+                $header[$idx]['visible'] = $field->visible;
+                $header[$idx]['sortable'] = $field->sort;
+                $header[$idx]['width'] = $field->width;
+                $header[$idx]['headerClass'] = $field->header_css;
+                $header[$idx]['cellClass'] = $field->cell_css;
                 switch ($field->type) {
                     case GridField::FIELD_TYPE_ACTIONS :
-                        $header[$idx]['targets'][] = $idx;
                         $header[$idx]['label'] = $field->label ? $field->label : 'Actions';
-                        $header[$idx]['visible'] = $field->visible;
-                        $header[$idx]['sortable'] = $field->sort;
-                        $header[$idx]['width'] = $field->width;
-                        $header[$idx]['headerClass'] = $field->header_css;
-                        $header[$idx]['cellClass'] = $field->cell_css;
-                        $header[$idx]['isAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
-                        $header[$idx]['fieldType'] = $field->type;
+                        $header[$idx]['isAction'] = true;
                         break;
                     case GridField::FIELD_TYPE_VIRTUAL :
                         $this->virtualFields[] = $field->name;
                         break;
                     default:
-                        // get items with custom render
                         if ($field->render) {
-                            $this->gridCustomRenders[$idx] = $field->render;
+                            // custom render
+                            $this->gridCustomRenders[$this->gridFieldsOrder[$field->name]] = $field->render;
                         }
-                        $header[$idx]['targets'][] = $this->gridFieldsOrder[$field->name];
                         $header[$idx]['label'] = $field->label ? $field->label : Transform::camelize($field->name);
-                        $header[$idx]['visible'] = $field->visible;
-                        $header[$idx]['sortable'] = $field->sort;
-                        $header[$idx]['width'] = $field->width;
-                        $header[$idx]['headerClass'] = $field->header_css;
-                        $header[$idx]['cellClass'] = $field->cell_css;
-                        $header[$idx]['isAction'] = $field->type == GridField::FIELD_TYPE_ACTIONS;
-                        $header[$idx]['fieldType'] = $field->type;
+                        $header[$idx]['isAction'] = false;
                         break;
                 }
                 $idx++;
@@ -333,22 +327,19 @@ class DataGrid implements DataGridInterface
     protected function processGridFieldsOrderSettings()
     {
         if (!count($this->gridFieldsOrder)) {
-            if ($this->config->order) {
-                $definedFieldsOrder = array_flip($this->config->order);
-                $maxOrderIdx = max($definedFieldsOrder);
-            } else {
-                $definedFieldsOrder = [];
-                $maxOrderIdx = 0;
-            }
+            $definedFieldsOrder = count($this->config->order) ? array_flip(array_values($this->config->order)) : [];
+            $orderIdx = count($definedFieldsOrder) ? max($definedFieldsOrder) : -1;
+
             // add order definition for fields which didn't had the order defined
             /** @var GridField $field */
             foreach ($this->config->fields as $field) {
-                if (!isset($definedFieldsOrder[$field->name])) {
-                    $definedFieldsOrder[$field->name] = ++$maxOrderIdx;
+                if (array_key_exists($field->name, $definedFieldsOrder)) {
+                    $this->gridFieldsOrder[$field->name] = $definedFieldsOrder[$field->name];
+                } else {
+                    $orderIdx++;
+                    $this->gridFieldsOrder[$field->name] = $orderIdx;
                 }
             }
-
-            $this->gridFieldsOrder = $definedFieldsOrder;
         }
 
         return $this;

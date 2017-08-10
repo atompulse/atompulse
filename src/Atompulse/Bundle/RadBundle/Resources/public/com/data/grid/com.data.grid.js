@@ -1435,8 +1435,7 @@ angular.module('Web.Components')
                      */
                     $private.prepareHeaderData = function ()
                     {
-                        var headerData = {},
-                            columnsOrderIdx = 1;
+                        var headerData = {};
                             $private.__countVisibleColumns = 0;
 
                         // check if there are custom renderers for fields & require controller scope
@@ -1446,16 +1445,16 @@ angular.module('Web.Components')
                              }
                         }
 
-                        _.each($this.grid.metaData.header, function (headerDefinition, headerIdx) {
+                        _.each($this.grid.metaData.header, function (headerDefinition) {
                             // column mapping
                             var column = {
+                                field: headerDefinition.field,
+                                key: headerDefinition.position,
                                 uid: 'col_uid_'+_.uniqueId(),
                                 label: headerDefinition.label,
                                 internal: !headerDefinition.visible,
-                                order: headerDefinition.visible ? columnsOrderIdx : false,
+                                order: headerDefinition.visible ? headerDefinition.position : false,
                                 show: headerDefinition.visible,
-                                field: $this.grid.metaData.columnsOrderMap.pos2name[headerDefinition.targets[0]],
-                                key: headerDefinition.targets[0],
                                 isAction: headerDefinition.isAction,
                                 width: headerDefinition.width,
                                 headerClass: headerDefinition.headerClass ? headerDefinition.headerClass : '', // column header class
@@ -1469,8 +1468,8 @@ angular.module('Web.Components')
                             headerData[column.field] = column;
 
                             // check if field has custom renderer & register it
-                            if (!_.isUndefined($this.grid.metaData.customRenders[headerIdx])) {
-                                var rendererName = $this.grid.metaData.customRenders[headerIdx],
+                            if (!_.isUndefined($this.grid.metaData.customRenders[column.key])) {
+                                var rendererName = $this.grid.metaData.customRenders[column.key],
                                     // check for the renderer provider
                                     rendererProvider = $private.ctrl.instance && !_.isUndefined($private.ctrl.instance[rendererName]) ? $private.ctrl.instance
                                         : $private.ctrl.scope && !_.isUndefined($private.ctrl.scope[rendererName]) ? $private.ctrl.scope : null;
@@ -1481,10 +1480,6 @@ angular.module('Web.Components')
                                 } else {
                                     throw "DataGridManager::prepareHeaderData ["+column.field+"] renderer function ["+rendererName+"] was not found on $ctrl OR $ctrl's $scope";
                                 }
-                            }
-
-                            if (!column.internal) {
-                                columnsOrderIdx++;
                             }
                         });
 
