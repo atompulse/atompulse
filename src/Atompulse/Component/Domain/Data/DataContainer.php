@@ -371,10 +371,10 @@ trait DataContainer
                     } elseif ($type == 'number' && is_numeric($value)) {
                         $isValidType = true;
                         break;
-                    } elseif ($type == 'integer' && is_int($value)) {
+                    } elseif (($type == 'integer' || $type == 'int') && is_int($value)) {
                         $isValidType = true;
                         break;
-                    } elseif ($type == 'boolean' && is_bool($value)) {
+                    } elseif (($type == 'boolean' || $type == 'bool') && is_bool($value)) {
                         $isValidType = true;
                         break;
                     } elseif ($type == 'null' && $value === null) {
@@ -412,7 +412,7 @@ trait DataContainer
 
         if (strpos($integritySpecification, '|') !== false) {
             $parsedIntegritySpecification = explode('|', $integritySpecification);
-        } elseif (!empty($typeSpecification)) {
+        } elseif (!empty($integritySpecification)) {
             $parsedIntegritySpecification = [$integritySpecification];
         }
 
