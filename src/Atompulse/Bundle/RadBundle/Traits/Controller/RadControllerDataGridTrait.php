@@ -144,7 +144,7 @@ trait RadControllerDataGridTrait
         // remove unused filters
         foreach ($filters as $filterName => $filterValue) {
             if (!is_array($filterValue)) {
-                if (strlen(trim($filterValue)) == 0 || $filterValue == '') {
+                if (!is_numeric($filterValue) && (strlen(trim($filterValue)) == 0 || $filterValue == '')) {
                     unset($filters[$filterName]);
                 }
             } else {
