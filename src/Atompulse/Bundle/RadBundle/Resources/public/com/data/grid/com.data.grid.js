@@ -1076,7 +1076,7 @@ angular.module('Web.Components')
                                     output = rowCellRenderer.apply(rowCellRenderer, [output, row, column]);
                                 }
                                 // output will replace directly the content of the cell using $
-                                if (!_.isUndefined(output)) {
+                                if (!_.isUndefined(output) && !_.isNull(output) && output !== '') {
                                     // jquery object
                                     if (_.isObject(output) && output instanceof jQuery || !_.isUndefined(output.nodeType)) {
                                         $('#' + cacheId).html($compile(output, false, 1001)($this.getControllerScope()));
