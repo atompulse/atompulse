@@ -13,6 +13,7 @@
       "psr-4": { "Atompulse\\Bundle\\RadBundle\\": "" }
   },
   "require": {
+    "php": ">=7.1",
     "symfony/symfony": "3.*",
     "atompulse/fusion-bundle": "dev-master",
     "friendsofsymfony/jsrouting-bundle": "2.0.*@dev"
