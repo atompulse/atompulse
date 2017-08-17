@@ -57,7 +57,7 @@ angular.module('Web.Components')
                      */
                     $this.addProperty = function (property, defaultValue)
                     {
-                        defaultValue = defaultValue || null;
+                        defaultValue = !_.isUndefined(defaultValue) ? defaultValue : null;
 
                         Object.defineProperty($this, property, {
                             get: function () {
