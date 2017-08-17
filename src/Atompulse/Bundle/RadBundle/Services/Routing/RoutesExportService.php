@@ -65,11 +65,17 @@ class RoutesExportService
                 ];
             }
 
+            $domain = $extractor->getHost();
+
+            if ($this->container->hasParameter('domain')) {
+                $domain = $this->container->getParameter('domain');
+            }
+
             $routing = [
                 'context' => [
                     'base_url' => $extractor->getBaseUrl(),
                     'prefix' => $extractor->getPrefix($this->request->getLocale()),
-                    'host' => $extractor->getHost(),
+                    'host' => $domain,
                     'scheme' => $extractor->getScheme(),
                     'locale' => $this->request->getLocale()
                 ],
