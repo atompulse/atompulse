@@ -1459,7 +1459,8 @@ angular.module('Web.Components')
                                 width: headerDefinition.width,
                                 headerClass: headerDefinition.headerClass ? headerDefinition.headerClass : '', // column header class
                                 cellClass: headerDefinition.cellClass ? headerDefinition.cellClass : '', // cell class
-                                sortable: headerDefinition.sortable
+                                sortable: headerDefinition.sortable,
+                                render: false
                             };
 
                             // set visible column count
@@ -1477,6 +1478,7 @@ angular.module('Web.Components')
                                 // check if render method is a valid callable
                                 if (rendererProvider) {
                                     $this.addRowCellRenderer(column.field, rendererProvider[rendererName]);
+                                    column.render = rendererName;
                                 } else {
                                     throw "DataGridManager::prepareHeaderData ["+column.field+"] renderer function ["+rendererName+"] was not found on $ctrl OR $ctrl's $scope";
                                 }
