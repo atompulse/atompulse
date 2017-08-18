@@ -1195,6 +1195,30 @@ angular.module('Web.Components')
                     };
 
                     /**
+                     * Check if a field has a renderer defined
+                     * @param field
+                     * @returns {boolean}
+                     */
+                    $this.hasRowCellRenderer = function (field)
+                    {
+                        $this.getHeaderData();
+
+                        return !_.isUndefined($private.rowCellRenderers[field]);
+                    };
+
+                    /**
+                     * Get defined renderer for field
+                     * @param field
+                     * @returns {*}
+                     */
+                    $this.getCellRenderer = function (field)
+                    {
+                        if ($this.hasRowCellRenderer(field)) {
+                            return $private.rowCellRenderers[field];
+                        }
+                    };
+
+                    /**
                      * Register a row css class injector callback
                      * @param callback
                      */
