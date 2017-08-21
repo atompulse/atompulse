@@ -25,11 +25,11 @@ trait FusionData
      * Add data with $name and $value to js
      * @param string $name
      * @param mixed $value
-     * @param string $scope
+     * @param bool|false $namespace
      */
-    public function setJsData($name, $value, $scope = false)
+    public function setJsData($name, $value, $namespace = false)
     {
-        $this->get('fusion.data.manager')->setData($name, $value, $scope);
+        $this->get('fusion.data.manager')->setData($name, $value, $namespace);
     }
 
 

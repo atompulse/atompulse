@@ -41,6 +41,12 @@ class FusionDataManager
     protected $dataContainer = [];
 
     /**
+     * Data encoding options
+     * @var array
+     */
+    protected $encodingOptions = JSON_NUMERIC_CHECK|JSON_PARTIAL_OUTPUT_ON_ERROR;
+
+    /**
      * Determine if the controller is qualified for data injection
      * @param FilterControllerEvent $event
      */
@@ -102,29 +108,29 @@ class FusionDataManager
 
     /**
      * Add data with $name and $value to js
-     * @param $name
-     * @param $value
-     * @param bool|false $scope
+     * @param string $name
+     * @param mixed $value
+     * @param string $namespace
      */
-    public function setData($name, $value, $scope = false)
+    public function setData(string $name, $value, $namespace = 'FusionData')
     {
-        // scope resolution: if none given the current controller name will be used
-        $scope = $scope ? $scope : Data\Transform::getControllerName(get_class($this->controller));
+        // namespace resolution: if none given the current controller name will be used
+        $namespace = $namespace ? $namespace : Data\Transform::getControllerName(get_class($this->controller));
 
-        $this->dataContainer[$scope][$name] = $value;
+        $this->dataContainer[$namespace][$name] = $value;
     }
 
     /**
      * Return data that will be added to js
-     * @param bool|false $name
-     * @param bool|false $scope
+     * @param bool|string|false $name
+     * @param bool|string|false $namespace
      * @return array
      */
-    public function getData($name = false, $scope = false)
+    public function getData($name = false, $namespace = false)
     {
         if ($name) {
-            $scope = $scope ? $scope : Data\Transform::getControllerName(get_class($this->controller));
-            return $this->dataContainer[$scope][$name];
+            $namespace = $namespace ? $namespace : Data\Transform::getControllerName(get_class($this->controller));
+            return $this->dataContainer[$namespace][$name];
         } else {
             return $this->dataContainer;
         }
@@ -168,8 +174,8 @@ class FusionDataManager
     protected function transformDataForJs($phpData)
     {
         $transformedData = [];
-        foreach ($phpData as $varScope => $varData) {
-            $transformedData[$varScope] = json_encode($varData, JSON_NUMERIC_CHECK|JSON_PARTIAL_OUTPUT_ON_ERROR);
+        foreach ($phpData as $namespace => $namespaceData) {
+            $transformedData[$namespace] = json_encode($namespaceData, $this->encodingOptions);
         }
 
         return $transformedData;
