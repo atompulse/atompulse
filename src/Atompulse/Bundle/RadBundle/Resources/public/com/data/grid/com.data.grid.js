@@ -48,7 +48,7 @@ angular.module('Web.Components')
                             available: 0,
                             pageRanges: [],
                             pageTotal: 0,
-                            needsPaginations: false
+                            needsPagination: false
                         },
 
                         dsResponseHandler: null
@@ -83,7 +83,7 @@ angular.module('Web.Components')
                         uriEngineStatus: true,
                         uriEnginePersistentNameSpace: false,
                         // caches
-                        __renderViewCache: {row_cell:{}, row_css:{}, row_action:{}, column_row: {}, column_header_css: {}},
+                        __renderViewCache: {row_cell: {}, row_css: {}, row_action: {}, column_row: {}, column_css: {}, column_header_css: {}},
                         __actionsWithRenderers: null,
                         __countActionsWithRenderers: null,
                         __countVisibleColumns: null,
@@ -257,7 +257,7 @@ angular.module('Web.Components')
                             $private.__countVisibleColumns = 0;
                             _.each($this.grid.metaData.header, function (headerDefinition) {
                                 // set visible column count
-                                $private.__countVisibleColumns += (headerDefinition.bVisible ? 1 : 0);
+                                $private.__countVisibleColumns += (headerDefinition.visible ? 1 : 0);
                             });
                         }
 
@@ -392,18 +392,18 @@ angular.module('Web.Components')
                      */
                     $this.setData = function (data)
                     {
-                        //console.log('data received:', moment().format('h:mm:ss a'));
+                        //console.log('data received:', data, moment().format('h:mm:ss a'));
                         // check for datatables like structure specific for Atompulse\Component\Grid\DataGrid
-                        if (!_.isUndefined(data.ds.aaData)) {
-                            $private.prepareGridData(data.ds.aaData);
+                        if (!_.isUndefined(data.ds.data)) {
+                            $private.prepareGridData(data.ds.data);
                             $private.setPaginationData(
                                 {
-                                    total:              parseInt(data.ds.iTotalRecords),
-                                    available:          parseInt(data.ds.iTotalDisplayRecords),
-                                    page:               parseInt(data.ds.iPage),
-                                    pageTotal:          parseInt(data.ds.iTotalPages),
-                                    pageRanges:         data.ds.iPages,
-                                    needsPaginations:   data.ds.iPaginate
+                                    total:              parseInt(data.ds.meta.total),
+                                    available:          parseInt(data.ds.meta.total_available),
+                                    page:               parseInt(data.ds.meta.page),
+                                    pageTotal:          parseInt(data.ds.meta.total_pages),
+                                    pageRanges:         data.ds.meta.pages,
+                                    needsPagination:   data.ds.meta.have_to_paginate
                                 }
                             );
                         } else {
@@ -1076,7 +1076,7 @@ angular.module('Web.Components')
                                     output = rowCellRenderer.apply(rowCellRenderer, [output, row, column]);
                                 }
                                 // output will replace directly the content of the cell using $
-                                if (output) {
+                                if (!_.isUndefined(output) && !_.isNull(output) && output !== '') {
                                     // jquery object
                                     if (_.isObject(output) && output instanceof jQuery || !_.isUndefined(output.nodeType)) {
                                         $('#' + cacheId).html($compile(output, false, 1001)($this.getControllerScope()));
@@ -1191,6 +1191,30 @@ angular.module('Web.Components')
                             $private.rowCellRenderers[field] = renderer;
                         } else {
                             throw "DataGridManager::addRowCellRenderer Row Cell renderer for ["+field+"] is invalid ["+renderer+"]";
+                        }
+                    };
+
+                    /**
+                     * Check if a field has a renderer defined
+                     * @param field
+                     * @returns {boolean}
+                     */
+                    $this.hasRowCellRenderer = function (field)
+                    {
+                        $this.getHeaderData();
+
+                        return !_.isUndefined($private.rowCellRenderers[field]);
+                    };
+
+                    /**
+                     * Get defined renderer for field
+                     * @param field
+                     * @returns {*}
+                     */
+                    $this.getCellRenderer = function (field)
+                    {
+                        if ($this.hasRowCellRenderer(field)) {
+                            return $private.rowCellRenderers[field];
                         }
                     };
 
@@ -1343,11 +1367,37 @@ angular.module('Web.Components')
                                'sorting': column.sortable
                             };
 
-                            if (column.class) {
-                                output[column.class] = true;
+                            if (column.headerClass) {
+                                output[column.headerClass] = true;
                             }
 
                             $private.__renderViewCache['column_header_css'][cacheId] = output;
+                        }
+
+                        return output;
+                    };
+
+                    /**
+                     * Get column css class
+                     * @param column
+                     * @returns {*}
+                     */
+                    $this.getColumnCssClass = function (column)
+                    {
+                        var output = {},
+                            cacheId = column.uid;
+
+                        if (!_.isUndefined($private.__renderViewCache['column_css'][cacheId])) {
+
+                            return $private.__renderViewCache['column_css'][cacheId];
+                        } else {
+                            output = {};
+
+                            if (column.cellClass) {
+                                output[column.cellClass] = true;
+                            }
+
+                            $private.__renderViewCache['column_css'][cacheId] = output;
                         }
 
                         return output;
@@ -1409,8 +1459,7 @@ angular.module('Web.Components')
                      */
                     $private.prepareHeaderData = function ()
                     {
-                        var headerData = {},
-                            columnsOrderIdx = 1;
+                        var headerData = {};
                             $private.__countVisibleColumns = 0;
 
                         // check if there are custom renderers for fields & require controller scope
@@ -1420,31 +1469,32 @@ angular.module('Web.Components')
                              }
                         }
 
-                        _.each($this.grid.metaData.header, function (headerDefinition, headerIdx) {
+                        _.each($this.grid.metaData.header, function (headerDefinition) {
                             // column mapping
                             var column = {
+                                field: headerDefinition.field,
+                                key: headerDefinition.position,
                                 uid: 'col_uid_'+_.uniqueId(),
-                                label: headerDefinition.sTitle,
-                                internal: !headerDefinition.bVisible,
-                                order: headerDefinition.bVisible ? columnsOrderIdx : false,
-                                show: headerDefinition.bVisible,
-                                field: $this.grid.metaData.columnsOrderMap.pos2name[headerDefinition.aTargets[0]],
-                                key: headerDefinition.aTargets[0],
-                                isAction: headerDefinition.bAction,
-                                width: headerDefinition.sWidth,
-                                'class': headerDefinition.sClass ? headerDefinition.sClass : '', // column header class
+                                label: headerDefinition.label,
+                                internal: !headerDefinition.visible,
+                                order: headerDefinition.visible ? headerDefinition.position : false,
+                                show: headerDefinition.visible,
+                                isAction: headerDefinition.isAction,
+                                width: headerDefinition.width,
+                                headerClass: headerDefinition.headerClass ? headerDefinition.headerClass : '', // column header class
                                 cellClass: headerDefinition.cellClass ? headerDefinition.cellClass : '', // cell class
-                                sortable: headerDefinition.bSortable
+                                sortable: headerDefinition.sortable,
+                                render: false
                             };
 
                             // set visible column count
-                            $private.__countVisibleColumns += (headerDefinition.bVisible ? 1 : 0);
+                            $private.__countVisibleColumns += (headerDefinition.visible ? 1 : 0);
 
                             headerData[column.field] = column;
 
                             // check if field has custom renderer & register it
-                            if (!_.isUndefined($this.grid.metaData.customRenders[headerIdx])) {
-                                var rendererName = $this.grid.metaData.customRenders[headerIdx],
+                            if (!_.isUndefined($this.grid.metaData.customRenders[column.key])) {
+                                var rendererName = $this.grid.metaData.customRenders[column.key],
                                     // check for the renderer provider
                                     rendererProvider = $private.ctrl.instance && !_.isUndefined($private.ctrl.instance[rendererName]) ? $private.ctrl.instance
                                         : $private.ctrl.scope && !_.isUndefined($private.ctrl.scope[rendererName]) ? $private.ctrl.scope : null;
@@ -1452,13 +1502,10 @@ angular.module('Web.Components')
                                 // check if render method is a valid callable
                                 if (rendererProvider) {
                                     $this.addRowCellRenderer(column.field, rendererProvider[rendererName]);
+                                    column.render = rendererName;
                                 } else {
                                     throw "DataGridManager::prepareHeaderData ["+column.field+"] renderer function ["+rendererName+"] was not found on $ctrl OR $ctrl's $scope";
                                 }
-                            }
-
-                            if (!column.internal) {
-                                columnsOrderIdx++;
                             }
                         });
 
@@ -1502,7 +1549,7 @@ angular.module('Web.Components')
 
                         if (!_.isUndefined(actionSettings)) {
                             if (actionSettings['with'] === '*') {
-                                return row;
+                                return $this.getAssocFieldsValuesFromRow(row);
                             } else {
                                 _.each(actionSettings['with'], function (field, key) {
                                     params[field] = row[key];
@@ -1532,12 +1579,12 @@ angular.module('Web.Components')
                     $private.addDtPagination = function ()
                     {
                         $private.params["page"] = {
-                            name: "iDisplayStart",
+                            name: "page",
                             value: $this.pagination.page
                         };
 
                         $private.params["size"] = {
-                            name: "iDisplayLength",
+                            name: "page-size",
                             value: $this.pagination.size
                         };
 
@@ -1595,8 +1642,8 @@ angular.module('Web.Components')
                      *
                      * @param paginationData
                      *  {
-                     *      total:      data.ds.iTotalRecords,
-                     *      available:  data.ds.iTotalDisplayRecords
+                     *      total:      data.ds.total,
+                     *      available:  data.ds.total_available
                      *  }
                      */
                     $private.setPaginationData = function (paginationData)
@@ -1642,6 +1689,7 @@ angular.module('Web.Components')
                             if ($pagination.page > 1) {
                                 UriEngine.addParam($private.getOwnName('dgp'), $pagination.page);
                             } else {
+                                // pagination reset
                                 if (UriEngine.getParam($private.getOwnName('dgp'))) {
                                     UriEngine.removeParam($private.getOwnName('dgp'));
                                 }

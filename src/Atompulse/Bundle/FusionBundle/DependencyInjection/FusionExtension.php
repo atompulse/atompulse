@@ -31,6 +31,8 @@ class FusionExtension extends Extension
 
     protected $importPaths = null;
 
+    protected $importParameter = null;
+
     protected $fusionIncludesMap = null;
 
     protected $includesEnabled = false;
@@ -95,7 +97,8 @@ class FusionExtension extends Extension
         foreach ($importPaths as $alias => $importPath) {
             // check for shortcut notation (convention based import)
             if (strpos($alias, '@') !== false) {
-                $alias = str_replace('@', '', $alias);
+                $alias = preg_replace('!@!', '', $alias, 1);
+
                 // add an asset path for this alias's path
                 $assetPath = [
                     'path' => $importPath . '/Resources/public',
@@ -446,8 +449,8 @@ class FusionExtension extends Extension
 
         if (isset($this->fusionIncludesMap['assets_paths'][$assetAliasPath])) {
             $asset = [
-                'path' => str_replace($assetAliasPath, $this->fusionIncludesMap['assets_paths'][$assetAliasPath]['path'], $assetPath),
-                'web' => str_replace($assetAliasPath, $this->fusionIncludesMap['assets_paths'][$assetAliasPath]['web'], $assetPath),
+                'path' => preg_replace("!$assetAliasPath!", $this->fusionIncludesMap['assets_paths'][$assetAliasPath]['path'], $assetPath, 1),
+                'web' => preg_replace("!$assetAliasPath!", $this->fusionIncludesMap['assets_paths'][$assetAliasPath]['web'], $assetPath, 1),
             ];
         } else {
             throw new \Exception("Asset Alias Path <" . var_export($assetAliasPath, true)."> is not registered");

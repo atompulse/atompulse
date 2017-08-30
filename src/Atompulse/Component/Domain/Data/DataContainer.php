@@ -1,6 +1,7 @@
 <?php
 namespace Atompulse\Component\Domain\Data;
 
+use Atompulse\Component\Domain\Data\Exception\PropertyMissingException;
 use Atompulse\Component\Domain\Data\Exception\PropertyNotValidException;
 use Atompulse\Component\Domain\Data\Exception\PropertyValueNotValidException;
 use Atompulse\Component\Domain\Data\Exception\PropertyValueNormalizationException;
@@ -39,6 +40,11 @@ trait DataContainer
     protected $properties = [];
 
     /**
+     * @var string
+     */
+    private $propertyNotValidErrorMessage = 'Property(ies) ["%s"] not valid for this class ["%s"]';
+
+    /**
      * @inheritdoc
      * @param string $property
      * @param mixed $value Value of property
@@ -49,13 +55,18 @@ trait DataContainer
     public function __set($property, $value)
     {
         if (!empty($this->validProperties) && !array_key_exists($property, $this->validProperties)) {
-            throw new PropertyNotValidException("Property [$property] not valid for this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
 
         // Check if there's a specialized setter method
         $setterMethod = "set".Transform::camelize($property);
         if (method_exists($this, $setterMethod)) {
             $this->$setterMethod($value);
+            // if custom setter did not "initialized" the property then
+            // by default we assume the user "left" the property as null
+            if (!array_key_exists($property, $this->properties)) {
+                $this->properties[$property] = null;
+            }
         } else {
             $this->properties[$property] = $value;
         }
@@ -75,7 +86,7 @@ trait DataContainer
     public function &__get($property)
     {
         if (!$this->isValidProperty($property)) {
-            throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
 
         $propertyValue = null;
@@ -88,7 +99,7 @@ trait DataContainer
             // default value when property was not set
             if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
                 $propertyValue = $this->defaultValues[$property];
-            } elseif (isset($this->properties[$property])) {
+            } elseif (array_key_exists($property, $this->properties)) {
                 $propertyValue = $this->properties[$property];
             }
         }
@@ -139,15 +150,15 @@ trait DataContainer
     public function addPropertyValue(string $property, $value)
     {
         if ($this->isValidProperty($property)) {
-            $requiredTypes = $this->getDefinedTypes($property);
+            $integrityConstraints = $this->getIntegritySpecification($property);
             // add to array property type
-            if (in_array('array', $requiredTypes) && !is_array($value)) {
+            if (in_array('array', $integrityConstraints) && !is_array($value)) {
                 $this->properties[$property][] = $value;
             } else {
                 $this->properties[$property] = $value;
             }
         } else {
-            throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
     }
 
@@ -182,7 +193,7 @@ trait DataContainer
                         );
                 }
             } else {
-                throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+                throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
             }
         }
 
@@ -219,18 +230,25 @@ trait DataContainer
     }
 
     /**
-     * Add data from array
+     * Populate properties from input array
      * @param array $data
-     * @param bool|true $skipInvalidProperties
+     * @param bool|true $skipExtraProperties Ignore extra properties that do not belong to the class
+     * @param bool|true $skipMissingProperties Ignore missing properties in input $data
      * @return $this
      */
-    public function fromArray(array $data, bool $skipInvalidProperties = true)
+    public function fromArray(array $data, bool $skipExtraProperties = true, bool $skipMissingProperties = true)
     {
-        foreach ($data as $property => $value) {
-            if ($skipInvalidProperties && !$this->isValidProperty($property)) {
-                continue;
-            } else {
-                $this->$property = $value;
+        $extraProperties = array_keys(array_diff_key($data, $this->validProperties));
+
+        if (!$skipExtraProperties && count($extraProperties)) {
+            throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, implode(',', $extraProperties), __CLASS__));
+        }
+
+        foreach ($this->validProperties as $property => $integritySpecification) {
+            if (!array_key_exists($property, $data) && !$skipMissingProperties) {
+                throw new PropertyMissingException("Property [$property] is missing from input array when using ".__CLASS__."::fromArray");
+            } elseif (array_key_exists($property, $data)) {
+                $this->$property = $data[$property];
             }
         }
 
@@ -257,7 +275,7 @@ trait DataContainer
             if ($this->isValidProperty($property)) {
                 return $this->normalizeValue($this->$property);
             } else {
-                throw new PropertyNotValidException("Property [$property] does not exists in this model [".__CLASS__."]");
+                throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
             }
         }
 
@@ -266,6 +284,18 @@ trait DataContainer
         }
 
         return $data;
+    }
+
+    /**
+     * Set custom $errorMessage for PropertyNotValidException
+     * @see There are 2 string parameters that will be replaced in the message using sprintf
+     * first is the invalid $property and the second is the current class name
+     * @template 'Property ["%s"] not valid for this class ["%s"]'
+     * @param string $errorMessage
+     */
+    public function setPropertyNotValidErrorMessage(string $errorMessage)
+    {
+        $this->propertyNotValidErrorMessage = $errorMessage;
     }
 
     /**
@@ -307,7 +337,7 @@ trait DataContainer
      */
     private function checkTypes(string $property, $value)
     {
-        $requiredTypes = $this->getDefinedTypes($property);
+        $integrityConstraints = $this->getIntegritySpecification($property);
 
         $actualValueType = gettype($value);
 
@@ -319,16 +349,16 @@ trait DataContainer
             }
         }
 
-        if (count($requiredTypes)) {
+        if (count($integrityConstraints)) {
             // object check
             if ($actualValueType == 'object') {
-                if (!in_array(get_class($value), $requiredTypes)) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes).'], but given value is instance of : [' . get_class($value).']');
+                if (!in_array(get_class($value), $integrityConstraints)) {
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $integrityConstraints).'], but given value is instance of : [' . get_class($value).']');
                 }
             } else {
                 // primitive type value
                 $isValidType = false;
-                foreach ($requiredTypes as $type) {
+                foreach ($integrityConstraints as $type) {
                     if ($type === 'object' && is_object($value)) {
                         $isValidType = true;
                         break;
@@ -341,10 +371,10 @@ trait DataContainer
                     } elseif ($type == 'number' && is_numeric($value)) {
                         $isValidType = true;
                         break;
-                    } elseif ($type == 'integer' && is_int($value)) {
+                    } elseif (($type == 'integer' || $type == 'int') && is_int($value)) {
                         $isValidType = true;
                         break;
-                    } elseif ($type == 'boolean' && is_bool($value)) {
+                    } elseif (($type == 'boolean' || $type == 'bool') && is_bool($value)) {
                         $isValidType = true;
                         break;
                     } elseif ($type == 'null' && $value === null) {
@@ -353,7 +383,7 @@ trait DataContainer
                     }
                 }
                 if (!$isValidType) {
-                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $requiredTypes)."], but given value is: [$actualValueType]");
+                    throw new PropertyValueNotValidException("Type error: Property [$property] accepts only [".implode(',', $integrityConstraints)."], but given value is: [$actualValueType]");
                 }
             }
         }
@@ -362,22 +392,31 @@ trait DataContainer
     }
 
     /**
-     * Get defined types for a property
+     * Get defined integrity check type|value for a property
      * @param string $property
      * @return array
      */
-    private function getDefinedTypes(string $property)
+    private function getIntegritySpecification(string $property)
     {
-        $typeSpecification = $this->validProperties[$property];
+        return $this->parseIntegritySpecification($this->validProperties[$property]);
+    }
 
-        $definedTypes = [];
-        if (strpos($typeSpecification, '|') !== false) {
-            $definedTypes = explode('|', $typeSpecification);
-        } elseif (!empty($typeSpecification)) {
-            $definedTypes = [$typeSpecification];
+    /**
+     * Parse integrity specification "array|null"
+     * @param string $integritySpecification
+     * @return array
+     */
+    private function parseIntegritySpecification(string $integritySpecification)
+    {
+        $parsedIntegritySpecification = [];
+
+        if (strpos($integritySpecification, '|') !== false) {
+            $parsedIntegritySpecification = explode('|', $integritySpecification);
+        } elseif (!empty($integritySpecification)) {
+            $parsedIntegritySpecification = [$integritySpecification];
         }
 
-        return $definedTypes;
+        return $parsedIntegritySpecification;
     }
 
 }

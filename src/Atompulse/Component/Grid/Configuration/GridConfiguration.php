@@ -3,6 +3,8 @@ namespace Atompulse\Component\Grid\Configuration;
 
 use Atompulse\Component\Domain\Data\DataContainer;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
+use Atompulse\Component\Domain\Data\Exception\PropertyNotValidException;
+use Atompulse\Component\Domain\Data\Exception\PropertyValueNotValidException;
 use Atompulse\Component\Grid\Configuration\Definition\GridAction;
 use Atompulse\Component\Grid\Configuration\Definition\GridField;
 use Atompulse\Component\Grid\Configuration\Exception\GridConfigurationException;
@@ -24,7 +26,7 @@ class GridConfiguration implements DataContainerInterface
 
     /**
      * @param array $configuration
-     * @throws \Atompulse\Component\Domain\Data\Exception\PropertyValueNotValidException
+     * @throws PropertyValueNotValidException
      */
     public function __construct(array $configuration = ['actions' => [], 'fields' => [], 'order' => []])
     {
@@ -34,7 +36,9 @@ class GridConfiguration implements DataContainerInterface
             'order' => 'array|null',
         ];
 
-        $this->fromArray($configuration);
+        $this->setPropertyNotValidErrorMessage('GridConfiguration section ["%s"] not supported');
+
+        $this->fromArray($configuration, false);
 
         $this->validateConfiguration();
 
@@ -43,6 +47,8 @@ class GridConfiguration implements DataContainerInterface
 
     /**
      * @param GridAction $action
+     * @return $this
+     * @throws PropertyNotValidException
      */
     public function addAction(GridAction $action)
     {
@@ -54,7 +60,7 @@ class GridConfiguration implements DataContainerInterface
     /**
      * @param GridField $field
      * @return $this
-     * @throws \Atompulse\Component\Domain\Data\Exception\PropertyNotValidException
+     * @throws PropertyNotValidException
      */
     public function addField(GridField $field)
     {

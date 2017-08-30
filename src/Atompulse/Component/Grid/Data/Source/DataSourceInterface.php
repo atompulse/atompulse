@@ -32,7 +32,7 @@ interface DataSourceInterface
 
     /**
      * Check if there's pagination required
-     * @return boolean
+     * @return bool
      */
     public function haveToPaginate();
 

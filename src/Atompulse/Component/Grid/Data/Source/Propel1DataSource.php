@@ -4,19 +4,13 @@ namespace Atompulse\Component\Grid\Data\Source;
 
 use Atompulse\Component\Grid\Data\Flow\Parameters;
 
-use Propel\Runtime\Util\PropelModelPager;
-use Propel\Runtime\Map\TableMap;
-use Propel\Runtime\ActiveQuery\Criteria;
-use Propel\Runtime\ActiveQuery\ModelCriteria;
-use Propel\Runtime\Collection\ArrayCollection;
-
 /**
- * Class PropelDataSource
+ * Class Propel1DataSource
  * @package Atompulse\Component\Grid\Data\Source
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-class PropelDataSource implements DataSourceInterface
+class Propel1DataSource implements DataSourceInterface
 {
     /**
      * @var Parameters
@@ -24,24 +18,24 @@ class PropelDataSource implements DataSourceInterface
     protected $parameters = null;
 
     /**
-     * @var ModelCriteria
+     * @var \ModelCriteria
      */
     protected $query = null;
 
     /**
-     * @var PropelModelPager
+     * @var \PropelModelPager
      */
     protected $pager = null;
 
     /**
-     * @var ArrayCollection
+     * @var \PropelArrayCollection
      */
     protected $data = null;
 
     /**
-     * @param ModelCriteria $query
+     * @param \ModelCriteria $query
      */
-    public function __construct(ModelCriteria $query)
+    public function __construct(\ModelCriteria $query)
     {
         $this->query = $query;
     }
@@ -49,7 +43,7 @@ class PropelDataSource implements DataSourceInterface
     /**
      * Get the data from the source
      * @param Parameters $parameters
-     * @return array|ArrayCollection
+     * @return array|\PropelArrayCollection
      */
     public function getData(Parameters $parameters)
     {

@@ -6,6 +6,7 @@ try { angular.module('Web.Components') } catch(err) { angular.module('Web.Compon
 
 /**
  * Add a NUMBER mask to an input to ONLY allow numbers (positive, negative, float, integer)
+ * @deprecated Deprecated in favor of inputMask
  */
 angular.module('Web.Components')
     .directive('comDataMaskInputNumber', [
@@ -14,8 +15,6 @@ angular.module('Web.Components')
                 require: 'ngModel',
                 link : function(scope, element, attrs,  ngModel)
                 {
-                    // TODO: this is deprecated => use inputMask
-
                     ngModel.$parsers.push(function(inputValue) {
                         if (typeof(inputValue) == 'undefined' || inputValue == null) {
 
@@ -41,24 +40,3 @@ angular.module('Web.Components')
             return comDataMaskInputNumber;
         }
     ]);
-
-//angular.module('Web.Components')
-//    .directive('forceNumber', [
-//        function() {
-//            var comDataMaskInputNumber = {
-//                require: 'ngModel',
-//                link : function(scope, element, attrs,  ngModel)
-//                {
-//                    ngModel.$formatters.push(function(value) {
-//                            return parseFloat(value);
-//                          });
-//                    ngModel.$parsers.push(function(value) {
-//                        //console.log(typeof value, value, 'then :', typeof parseFloat(value), parseFloat(value));
-//                        return parseFloat(value);
-//                    });
-//                }
-//            };
-//
-//            return comDataMaskInputNumber;
-//        }
-//    ]);

@@ -145,32 +145,7 @@ angular.module('Web.Components')
                     } else {
                         scope.options = _.deepExtend(scope.settings, scope.options);
                         scope.options = _.deepExtend(defaultOptions, scope.options);
-
-                        // layout is defined and is in standard definition list
-                        // Todo: animations
-//                        if (typeof(scope.options['layout']) !== 'undefined' && typeof($private.layouts[scope.options['layout']]) !== 'undefined') {
-//                            if (typeof(scope.options['animate']) === 'undefined') {
-//                                scope.options['animate'] = $private.layouts[scope.options['layout']].animate;
-//                            } else {
-//                                // no 'animate' was set in settings => use default animation corresponding for the the layout
-//                                if (typeof(scope.options['animate']['in']) === 'undefined') {
-//                                    scope.options['animate']['in'] = $private.layouts[scope.options['layout']].animate.in;
-//                                } else {
-//                                    scope.options['animate']['in'] = scope.settings['animate']['in'];
-//                                }
-//                                if (typeof(scope.options['animate']['out']) === 'undefined') {
-//                                    scope.options['animate']['out'] = $private.layouts[scope.options['layout']].animate.out;
-//                                } else {
-//                                    scope.options['animate']['out'] = scope.options['animate']['out'];
-//                                }
-//                            }
-//                        }
                     }
-
-                    // Todo: animations
-//                    scope.animate = function (state) {
-//                        return state ? scope.options['animate']['in'] : scope.options['animate']['out'];
-//                    };
 
                     this.channels[scope.channel] = {
                         scope: scope
