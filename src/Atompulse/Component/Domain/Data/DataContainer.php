@@ -202,7 +202,7 @@ trait DataContainer
                 if (is_object($item)) {
                     // default object->primitive type conversion for DateTime objects
                     if (get_class($item) === "DateTime") {
-                        return $item->format("Y-m-d");
+                        return $item->format("Y-m-d\TH:i:s.u\Z");
                     }
                     if ($item instanceof DataContainerInterface || method_exists($item, 'toArray')) {
                         return $item->toArray();
@@ -310,7 +310,7 @@ trait DataContainer
         // object value
         if (is_object($value)) {
             if (get_class($value) === "DateTime") {
-                $normalizedValue = $value->format("Y-m-d");
+                $normalizedValue = $value->format("Y-m-d\TH:i:s.u\Z");
             } elseif ($value instanceof DataContainerInterface || method_exists($value, 'normalizeData')) {
                 $normalizedValue = $value->normalizeData();
             } else {
