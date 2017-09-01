@@ -74,23 +74,33 @@ angular.module('Web.Components')
 
                     /**
                      * Populate data container
-                     * @param data
+                     * @param inputData
                      * @param mappings
                      */
-                    $this.populateFromData = function (data, mappings)
+                    $this.populateFromData = function (inputData, mappings)
                     {
-                        var withMappings = !_.isUndefined(mappings) && _.isObject(mappings) && _.size(mappings) > 0;
+                        var data = angular.copy(inputData),
+                            withMappings = !_.isUndefined(mappings) && _.isObject(mappings) && _.size(mappings) > 0,
+                            mappings = mappings || {};
+
+                        // fix reserved property name 'length'
+                        if (!_.isUndefined(data['length'])) {
+                            withMappings = true;
+                            mappings['_length_'] = 'length';
+                            data['_length_'] = data['length'];
+                            delete data['length'];
+                        }
 
                         _.each (data, function (value, property) {
                             if (!_.isUndefined($private.model[property])) {
                                 if (!_.isEqual($private.model[property], value)) {
-                                    $private.model[property] = angular.copy(value);
+                                    $private.model[property] = value;
                                 }
                             } else {
                                 // handle mappings (i.e. id => entity_id or vice-versa)
                                 var mappedProperty = withMappings && !_.isUndefined($private.model[mappings[property]]) ? mappings[property] : false;
                                 if (mappedProperty && !_.isEqual($private.model[mappedProperty], value)) {
-                                    $private.model[mappedProperty] = angular.copy(value);
+                                    $private.model[mappedProperty] = value;
                                 }
                             }
                         });
