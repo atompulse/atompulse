@@ -468,7 +468,7 @@ class FusionExtension extends Extension
     }
 
     /**
-     * Collection assets
+     * Collect assets
      * @param string $realPath
      * @param string $webPath
      * @param string $assetType
