@@ -95,9 +95,11 @@ class MenuBuilderService
             if (isset($menuGroupData['items']) && count($menuGroupData['items'])) {
                 foreach ($menuGroupData['items'] as $itemKey => $itemData) {
                     // route has RAN requirement
-                    if (!$securityAdviser->userHasOverrideRoles() &&
-                        $securityAdviser->getRouteRequiredPermissions($itemData['route']) &&
-                        $securityAdviser->userHasRequiredPermissionsForRoute($itemData['route'])
+                    if ((!$securityAdviser->userHasOverrideRoles() &&
+                            $securityAdviser->getRouteRequiredPermissions($itemData['route']) &&
+                            $securityAdviser->userHasRequiredPermissionsForRoute($itemData['route']))
+                        || $securityAdviser->userHasOverrideRoles()
+                        || !$securityAdviser->getRouteRequiredPermissions($itemData['route'])
                     ) {
                         $menuGroupItems[$itemKey] = $this->processMenuItem($itemData);
                     }
@@ -108,9 +110,11 @@ class MenuBuilderService
                 }
             } // standalone menu group
             elseif (isset($menuGroupData['route'])) {
-                if (!$securityAdviser->userHasOverrideRoles() &&
-                    $securityAdviser->getRouteRequiredPermissions($menuGroupData['route']) &&
-                    $securityAdviser->userHasRequiredPermissionsForRoute($menuGroupData['route'])
+                if ((!$securityAdviser->userHasOverrideRoles() &&
+                        $securityAdviser->getRouteRequiredPermissions($menuGroupData['route']) &&
+                        $securityAdviser->userHasRequiredPermissionsForRoute($menuGroupData['route']))
+                    || $securityAdviser->userHasOverrideRoles()
+                    || !$securityAdviser->getRouteRequiredPermissions($menuGroupData['route'])
                 ) {
                     $menuData[$menuGroup] = $this->processMenuGroupItem($menuGroupData, $menuGroupItems);
                 }
