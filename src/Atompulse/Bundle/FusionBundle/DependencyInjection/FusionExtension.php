@@ -196,8 +196,10 @@ class FusionExtension extends Extension
                         }
                         // many assets in folder and subfolders
                         else {
-                            $assets = $this->findAssetsInPath($asset['path'], $asset['web']);
-
+                            $assets = [
+                                'css' => $this->findAssetsInPath($asset['path'], $asset['web'], 'css'),
+                                'js' => $this->findAssetsInPath($asset['path'], $asset['web'], 'js')
+                            ];
                             if (count($assets['js'])) {
                                 foreach ($assets['js'] as $assetAlias => $asset) {
                                     $groupMap['js'][] = $asset;
@@ -223,8 +225,10 @@ class FusionExtension extends Extension
                         }
                         // many assets in folder and subfolders
                         else {
-                            $assets = $this->findAssetsInPath($asset['path'], $asset['web']);
-
+                            $assets = [
+                                'css' => $this->findAssetsInPath($asset['path'], $asset['web'], 'css'),
+                                'js' => $this->findAssetsInPath($asset['path'], $asset['web'], 'js')
+                            ];
                             if (count($assets['js'])) {
                                 foreach ($assets['js'] as $assetAlias => $asset) {
                                     $groupMap['js'][] = $asset;
@@ -390,9 +394,10 @@ class FusionExtension extends Extension
                 }
                 // many assets in folder and subfolders
                 else {
-
-                    $assets = $this->findAssetsInPath($asset['path'], $asset['web']);
-
+                    $assets = [
+                        'css' => $this->findAssetsInPath($asset['path'], $asset['web'], 'css'),
+                        'js' => $this->findAssetsInPath($asset['path'], $asset['web'], 'js')
+                    ];
                     if (count($assets['js'])) {
                         foreach ($assets['js'] as $assetAlias => $asset) {
                             $processedAssets['js'][] = $asset;
@@ -422,7 +427,10 @@ class FusionExtension extends Extension
                     }
                     // many assets in folder and subfolders
                     else {
-                        $assets = $this->findAssetsInPath($asset['path'], $asset['web']);
+                        $assets = [
+                            'css' => $this->findAssetsInPath($asset['path'], $asset['web'], 'css'),
+                            'js' => $this->findAssetsInPath($asset['path'], $asset['web'], 'js')
+                        ];
                         if (count($assets['js'])) {
                             foreach ($assets['js'] as $assetAlias => $asset) {
                                 $processedAssets['js'][] = $asset;
@@ -459,33 +467,37 @@ class FusionExtension extends Extension
         return $asset;
     }
 
-    private function findAssetsInPath(string $realPath, string $webPath = '')
+    /**
+     * Collection assets
+     * @param string $realPath
+     * @param string $webPath
+     * @param string $assetType
+     * @return array
+     */
+    private function findAssetsInPath(string $realPath, string $webPath = '', string $assetType = 'js')
     {
-        $assets = ['js'=>[],'css'=>[]];
+        $assets = [];
 
-
+        $mask = "*.$assetType";
 
         $finder = Finder::create();
-        $files = $finder->files()->name('*.js')->in($realPath);
+        $files = $finder->files()->ignoreDotFiles(true)->ignoreUnreadableDirs(true)->ignoreVCS(true)
+                    ->name($mask)->in($realPath)->sortByName();
 
         if (count($files)) {
+            // organize files per folder depth (level)
+            $filesCollection = [];
+            /** @var \Symfony\Component\Finder\SplFileInfo $file */
             foreach ($files as $file) {
-                $assets['js'][] = [
+                $level = count(explode(DIRECTORY_SEPARATOR, $file->getRealPath()));
+                $filesCollection[$level][] = [
                     'path' => $file->getRealPath(),
                     'web'  => str_replace('\\', '/', $webPath . '/' . $file->getRelativePathname()),
                 ];
             }
-        }
 
-        $finder = Finder::create();
-        $files = $finder->files()->name('*.css')->in($realPath);
-        if (count($files)) {
-            foreach ($files as $file) {
-                $assets['css'][] = [
-                    'path' => $file->getRealPath(),
-                    'web'  => str_replace('\\', '/', $webPath . '/' . $file->getRelativePathname()),
-                ];
-            }
+            ksort($filesCollection);
+            $assets = call_user_func_array('array_merge', $filesCollection);
         }
 
         return $assets;
