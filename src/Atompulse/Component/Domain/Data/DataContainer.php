@@ -127,6 +127,22 @@ trait DataContainer
     }
 
     /**
+     * Define a property on data container
+     * @param string $property
+     * @param array $constraints
+     * @param null $defaultValue
+     * @throws PropertyNotValidException
+     */
+    public function defineProperty(string $property, $constraints = [], $defaultValue = null)
+    {
+        $this->validProperties[$property] = $constraints;
+
+        if (!is_null($defaultValue)) {
+            $this->addPropertyValue($property, $defaultValue);
+        }
+    }
+
+    /**
      * Check if a property is valid
      * @param string $property
      * @return bool
@@ -138,6 +154,24 @@ trait DataContainer
         }
 
         return true;
+    }
+
+    /**
+     * Get the defined list of properties
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->validProperties;
+    }
+
+    /**
+     * Get the list of properties names
+     * @return array
+     */
+    public function getPropertiesList()
+    {
+        return array_keys($this->validProperties);
     }
 
     /**
@@ -398,7 +432,13 @@ trait DataContainer
      */
     private function getIntegritySpecification(string $property)
     {
-        return $this->parseIntegritySpecification($this->validProperties[$property]);
+        $constraints = $this->validProperties[$property];
+
+        if (!is_array($constraints)) {
+            $constraints = $this->parseIntegritySpecification($this->validProperties[$property]);
+        }
+
+        return $constraints;
     }
 
     /**
