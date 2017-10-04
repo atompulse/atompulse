@@ -241,14 +241,18 @@ class DataGrid implements DataGridInterface
                     case GridField::FIELD_TYPE_VIRTUAL :
                         $header[$idx]['label'] = $field->label ? $field->label : Transform::camelize($field->name);
                         $this->virtualFields[] = $field->name;
-                        break;
-                    default:
                         if ($field->render) {
                             // custom render
                             $this->gridCustomRenders[$this->gridFieldsOrder[$field->name]] = $field->render;
                         }
+                        break;
+                    default:
                         $header[$idx]['label'] = $field->label ? $field->label : Transform::camelize($field->name);
                         $header[$idx]['isAction'] = false;
+                        if ($field->render) {
+                            // custom render
+                            $this->gridCustomRenders[$this->gridFieldsOrder[$field->name]] = $field->render;
+                        }
                         break;
                 }
                 $idx++;
