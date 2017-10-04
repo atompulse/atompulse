@@ -239,6 +239,7 @@ class DataGrid implements DataGridInterface
                         $header[$idx]['isAction'] = true;
                         break;
                     case GridField::FIELD_TYPE_VIRTUAL :
+                        $header[$idx]['label'] = $field->label ? $field->label : Transform::camelize($field->name);
                         $this->virtualFields[] = $field->name;
                         break;
                     default:
