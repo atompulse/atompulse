@@ -9,8 +9,9 @@ angular.module('Web.Components')
     .directive('comUiSelectRequired', function () {
         return {
             require: 'ngModel',
-            link: function (scope, elm, attrs, ctrl) {
-                ctrl.$validators.uiSelectRequired = function (modelValue, viewValue) {
+            link: function (scope, elm, attrs, ctrl)
+            {
+                var validator = function (modelValue, viewValue) {
                     var determineVal;
                     // Multiselect
                     if (angular.isArray(modelValue)) {
@@ -28,6 +29,8 @@ angular.module('Web.Components')
 
                     return determineVal.length > 0;
                 };
+
+                ctrl.$validators.required = validator;
             }
         };
     });
