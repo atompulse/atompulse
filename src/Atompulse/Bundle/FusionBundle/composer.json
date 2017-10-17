@@ -13,7 +13,7 @@
       "psr-4": { "Atompulse\\Bundle\\FusionBundle\\": "" }
   },
   "require": {
-    "symfony/symfony": "3.*",
+    "symfony/symfony": "~2.8||~3.0",
     "atompulse/domain": "dev-master",
     "atompulse/data": "dev-master"
   },
