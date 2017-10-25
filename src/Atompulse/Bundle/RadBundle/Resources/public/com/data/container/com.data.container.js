@@ -159,11 +159,14 @@ angular.module('Web.Components')
 
                     /**
                      * Get container data
+                     * @param excludedProperties
                      * @returns {*}
                      */
-                    $this.getData = function ()
+                    $this.getData = function (excludedProperties)
                     {
-                        return angular.copy($private.model);
+                        excludedProperties = _.isObject(excludedProperties) && _.size(excludedProperties) > 0 ? excludedProperties : false;
+
+                        return excludedProperties ? _.omit(angular.copy($private.model), excludedProperties) : angular.copy($private.model);
                     };
 
                     /********************
