@@ -10,6 +10,26 @@ namespace Atompulse\Component\Domain\Data;
 interface DataContainerInterface
 {
     /**
+     * Define a property on data container
+     * @param string $property
+     * @param array $constraints
+     * @param null $defaultValue
+     */
+    public function defineProperty(string $property, $constraints = [], $defaultValue = null);
+
+    /**
+     * Get the defined list of properties
+     * @return array
+     */
+    public function getProperties();
+
+    /**
+     * Get the list of properties names
+     * @return array
+     */
+    public function getPropertiesList();
+
+    /**
      * Check if a property is valid
      * @param string $property
      * @return bool
