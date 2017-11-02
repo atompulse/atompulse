@@ -1,7 +1,7 @@
 {
   "name": "atompulse/utils",
   "type": "library",
-  "description": "Atompulse Utils",
+  "description": "Atompulse Utilities",
   "keywords": [],
   "license": "Apache-2.0",
   "authors": [
@@ -18,12 +18,8 @@
       "/Tests/"
     ]
   },
-  "require": {
-    "symfony/symfony": "3.*"
-  },
-  "require-dev": {
-    "symfony/symfony": "3.*"
-  },
+  "require": {},
+  "require-dev": {},
   "minimum-stability": "dev",
   "prefer-stable": true
 }

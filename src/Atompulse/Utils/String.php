@@ -1,13 +1,19 @@
 <?php
-namespace AtomPulse\FusionBundle\Fusion\Traits\Utils;
+
+namespace Atompulse\Utils;
 
 /**
- * String Utility
+ * Trait StringUtils
+ * @package Atompulse\Utils
  *
- * @author Petru Cojocar
+ * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-trait String
+trait StringUtils
 {
+    /**
+     * @param $jsQualifiedName
+     * @return array
+     */
     public function toNamespaceComponents($jsQualifiedName)
     {
          $parts = explode('.', $jsQualifiedName);
@@ -41,7 +47,10 @@ trait String
         return strtolower(preg_replace('/(?<=[a-z])([A-Z])/', '_$1', $string));
     }
 
-
+    /**
+     * @param $string
+     * @return string
+     */
     public function classify($string)
     {
         $strings = explode('.', str_replace(['_','-'], '.', $string));
@@ -54,6 +63,10 @@ trait String
         return $camelString;
     }
 
+    /**
+     * @param $qualifiedControllerName
+     * @return mixed
+     */
     public function getControllerName($qualifiedControllerName)
     {
         $nsComponents = explode('\\', $qualifiedControllerName);
