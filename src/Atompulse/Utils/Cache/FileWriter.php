@@ -31,8 +31,8 @@ class FileWriter implements FileWriterInterface
     public function __construct(string $cacheRootDir, string $cacheDirName = null)
     {
         $this->cacheRootDir = $cacheRootDir;
-        $this->cacheDirName = $cacheDirName ? $cacheDirName : uniqid('cache_');
-        $this->cacheTargetDir = $this->cacheRootDir . DIRECTORY_SEPARATOR . $this->cacheDirName;
+        $this->cacheNameDir = $cacheDirName ? $cacheDirName : uniqid('cache_');
+        $this->cacheTargetDir = $this->cacheRootDir . DIRECTORY_SEPARATOR . $this->cacheNameDir;
     }
 
     /**
@@ -42,7 +42,7 @@ class FileWriter implements FileWriterInterface
      */
     public function setCacheDirName(string $cacheDirName)
     {
-        $this->cacheDirName = $cacheDirName;
+        $this->cacheNameDir = $cacheDirName;
 
         return $this;
     }
