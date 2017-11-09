@@ -23,4 +23,4 @@ services:
     class:  Atompulse\Bundle\RadBundle\Services\Exception\AjaxExceptionHandlerService
     arguments: []
     tags:
-      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 255 }
+      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 250 }

@@ -31,6 +31,7 @@ class AjaxExceptionHandlerService
                 'data' => [
                     'exception' => [
                         'message' => $exception->getMessage(),
+                        'class' => get_class($exception),
                         'file' => "{$exception->getFile()}:{$exception->getLine()}",
                         'trace' => $exception->getTraceAsString()
                     ]
