@@ -52,9 +52,9 @@ trait DataContainer
      * @throws PropertyValueNotValidException Thrown if property value type is inconsistent with declaration
      * @return void
      */
-    public function __set($property, $value)
+    public function __set(string $property, $value)
     {
-        if (!empty($this->validProperties) && !array_key_exists($property, $this->validProperties)) {
+        if (!$this->isValidProperty($property)) {
             throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
 
@@ -68,7 +68,13 @@ trait DataContainer
                 $this->properties[$property] = null;
             }
         } else {
-            $this->properties[$property] = $value;
+            $integrityConstraints = $this->getIntegritySpecification($property);
+            // add to array property type
+            if (in_array('array', $integrityConstraints) && !is_array($value)) {
+                $this->properties[$property][] = $value;
+            } else {
+                $this->properties[$property] = $value;
+            }
         }
 
         // perform property value type checking
@@ -83,7 +89,7 @@ trait DataContainer
      * @return mixed
      * @throws PropertyNotValidException
      */
-    public function &__get($property)
+    public function &__get(string $property)
     {
         if (!$this->isValidProperty($property)) {
             throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
@@ -94,14 +100,14 @@ trait DataContainer
         // specialized getter method
         $getterMethod = "get".Transform::camelize($property);
         if (method_exists($this, $getterMethod)) {
-            $propertyValue = $this->$getterMethod();
-        } else {
-            // default value when property was not set
-            if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
-                $propertyValue = $this->defaultValues[$property];
-            } elseif (array_key_exists($property, $this->properties)) {
-                $propertyValue = $this->properties[$property];
-            }
+            return $this->$getterMethod();
+        }
+
+        // default value when property was not set
+        if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
+            $propertyValue = &$this->defaultValues[$property];
+        } elseif (array_key_exists($property, $this->properties)) {
+            $propertyValue = &$this->properties[$property];
         }
 
         return $propertyValue;
@@ -138,7 +144,7 @@ trait DataContainer
         $this->validProperties[$property] = $constraints;
 
         if (!is_null($defaultValue)) {
-            $this->addPropertyValue($property, $defaultValue);
+            $this->defaultValues[$property] = $defaultValue;
         }
     }
 
@@ -176,24 +182,28 @@ trait DataContainer
 
     /**
      * Set a property value
-     * @info This is a shortcut method to allow $this->properties[$property] = $value / $this->properties[$property][] = $value;
+     * @info Usage of $this->properties[$property] = $value / $this->properties[$property][] = $value
+     * should be avoided, use addPropertyValue instead.
      * @param string $property
      * @param mixed $value
      * @throws PropertyNotValidException
      */
     public function addPropertyValue(string $property, $value)
     {
-        if ($this->isValidProperty($property)) {
-            $integrityConstraints = $this->getIntegritySpecification($property);
-            // add to array property type
-            if (in_array('array', $integrityConstraints) && !is_array($value)) {
-                $this->properties[$property][] = $value;
-            } else {
-                $this->properties[$property] = $value;
-            }
-        } else {
+        if (!$this->isValidProperty($property)) {
             throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
         }
+
+        $integrityConstraints = $this->getIntegritySpecification($property);
+        // add to array property type
+        if (in_array('array', $integrityConstraints) && !is_array($value)) {
+            $this->properties[$property][] = $value;
+        } else {
+            $this->properties[$property] = $value;
+        }
+
+        // perform property value type checking
+        $this->checkTypes($property, $this->properties[$property]);
     }
 
     /**
