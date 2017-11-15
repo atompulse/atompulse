@@ -99,15 +99,16 @@ trait DataContainer
 
         // specialized getter method
         $getterMethod = "get".Transform::camelize($property);
-        if (method_exists($this, $getterMethod)) {
-            return $this->$getterMethod();
-        }
 
-        // default value when property was not set
-        if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
-            $propertyValue = &$this->defaultValues[$property];
-        } elseif (array_key_exists($property, $this->properties)) {
-            $propertyValue = &$this->properties[$property];
+        if (method_exists($this, $getterMethod)) {
+            $propertyValue = $this->$getterMethod();
+        } else {
+            // default value when property was not set
+            if (!array_key_exists($property, $this->properties) && array_key_exists($property, $this->defaultValues)) {
+                $propertyValue = &$this->defaultValues[$property];
+            } elseif (array_key_exists($property, $this->properties)) {
+                $propertyValue = &$this->properties[$property];
+            }
         }
 
         return $propertyValue;
