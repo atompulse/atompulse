@@ -21,9 +21,11 @@ angular.module('Web.Components')
              */
             DataService.get = function (namespace) {
 
-                if (typeof(namespace) !== 'undefined') {
+                if (this.has(namespace)) {
                     return Fusion.retrieveNsObject(namespace, ApplicationGlobalData);
                 }
+
+                throw new Error("DataService::get [window.Application."+namespace+"] does not exist");
             };
 
             /**
