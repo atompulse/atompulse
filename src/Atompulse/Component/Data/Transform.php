@@ -437,7 +437,13 @@ class Transform
         return $data;
     }
 
-    public static function csvFileToArrayGenerator($filename = '', $delimiter = ',')
+    /**
+     * Read a csv using a generator in order to avoid memory issues
+     * @param string $filename
+     * @param string $delimiter
+     * @return \Generator
+     */
+    public static function csvFileToArrayGenerator(string $filename = '', string $delimiter = ',')
     {
         $complete = false;
         try {
@@ -544,6 +550,31 @@ class Transform
     public static function br2nl($string)
     {
         return preg_replace('/\<br(\s*)?\/?\>/i', PHP_EOL, $string);
+    }
+
+    /**
+     * An array of key/value pairs to be flipped.
+     * Exchanges all keys with their associated values in an array
+     * @note The difference to the php function is that if a value has several occurrences,
+     * then this function will build an array for all those occurrences so no values are lost
+     * @param array $data
+     * @return array
+     */
+    public static function arrayFlip(array $data)
+    {
+        $dataFlipped = [];
+
+        $metaData = array_count_values($data);
+
+        foreach ($data as $key => $value) {
+            if ($metaData[$value] > 1) {
+                $dataFlipped[$value][] = $key;
+            } else {
+                $dataFlipped[$value] = $key;
+            }
+        }
+
+        return $dataFlipped;
     }
 
 }
