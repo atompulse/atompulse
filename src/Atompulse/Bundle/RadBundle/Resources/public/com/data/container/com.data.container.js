@@ -43,9 +43,19 @@ angular.module('Web.Components')
                      */
                     $this.init = function ($model)
                     {
-                        _.each ($model, function (defaultValue, property) {
-                            $this.addProperty(property, defaultValue);
-                        });
+                        $private.defineModel($model);
+
+                        return $this;
+                    };
+
+                    /**
+                     * Extend and existent model with new $extensionModel
+                     * @param $extensionModel
+                     * @returns {{}}
+                     */
+                    $this.extend = function ($extensionModel)
+                    {
+                        $private.defineModel($extensionModel);
 
                         return $this;
                     };
@@ -66,7 +76,8 @@ angular.module('Web.Components')
                             set: function (value) {
                                 $private.model[property] = value;
                             },
-                            enumerable: true
+                            enumerable: true,
+                            configurable: true
                         });
 
                         $private.model[property] = defaultValue;
@@ -181,6 +192,17 @@ angular.module('Web.Components')
                     $private.initMappings = function (mappings)
                     {
                         return (!_.isUndefined(mappings) && _.isObject(mappings) && _.size(mappings) > 0) ? mappings : {};
+                    };
+
+                    /**
+                     * Define the model
+                     * @param $model
+                     */
+                    $private.defineModel = function ($model)
+                    {
+                        _.each ($model, function (defaultValue, property) {
+                            $this.addProperty(property, defaultValue);
+                        });
                     };
 
                     /**
