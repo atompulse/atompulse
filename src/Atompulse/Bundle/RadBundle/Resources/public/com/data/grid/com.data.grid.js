@@ -646,17 +646,29 @@ angular.module('Web.Components')
                     /**
                      * Set sort on specific field
                      * @param column Supports sending [fieldName, 'ASC'] when column data is not available or for simplicity
-                     * @param reload
+                     * @param reload Trigger grid reload
+                     * @param reset Reset other sorters
                      * @returns {*}
                      */
-                    $this.setSorter = function (column, reload)
+                    $this.setSorter = function (column, reload, reset)
                     {
                         var sortOrder = false;
 
                         // support for sending column parameter as [fieldName, 'ASC']
-                        if (_.isArray(column) && _.size(column) == 2) {
+                        if (_.isArray(column) && _.size(column) === 2) {
                             sortOrder = column[1];
                             column = $this.getColumn(column[0]);
+                        }
+
+                        // reset other sorters
+                        if (!_.isUndefined(reset) && reset) {
+                            var currentSorters = _.clone($this.sorters);
+                            _.each (currentSorters, function (direction, fieldName) {
+                                // except current sorter
+                                if (column.field !== fieldName) {
+                                    $this.removeSorter($this.getColumn(fieldName), false);
+                                }
+                            });
                         }
 
                         if (column.sortable) {
@@ -667,7 +679,7 @@ angular.module('Web.Components')
                                 // automatically determine the sort order based on current state
                                 if ($this.hasSorter(column)) {
                                     // check previous direction
-                                    if ($this.getSorter(column) == 'ASC') {
+                                    if ($this.getSorter(column) === 'ASC') {
                                         // change direction
                                         $this.sorters[column.field] = 'DESC';
                                     } else {
@@ -691,13 +703,7 @@ angular.module('Web.Components')
                             }
 
                             // check for sorter listeners and execute them if any
-                            if (_.size($private.sorterListeners) > 0) {
-                                _.each ($private.sorterListeners, function (listener) {
-                                    if (_.isFunction(listener)) {
-                                        listener.apply(listener, [$this.sorters]);
-                                    }
-                                });
-                            }
+                            $private.dispatchSorterEvent();
                         }
 
                         return $this;
@@ -732,13 +738,7 @@ angular.module('Web.Components')
                         delete $private.__renderViewCache['column_header_css'][column.uid];
 
                         // check for sorter listeners and execute them if any
-                        if (_.size($private.sorterListeners) > 0) {
-                            _.each ($private.sorterListeners, function (listener) {
-                                if (_.isFunction(listener)) {
-                                    listener.apply(listener, [$this.sorters]);
-                                }
-                            });
-                        }
+                        $private.dispatchSorterEvent();
 
                         return $this;
                     };
@@ -772,7 +772,7 @@ angular.module('Web.Components')
                     };
 
                     /**
-                     *  Reset all the sorters
+                     * Reset all the sorters
                      * @param reload
                      */
                     $this.resetSorters = function (reload)
@@ -787,13 +787,7 @@ angular.module('Web.Components')
                         }
 
                         // check for sorter listeners and execute them if any
-                        if (_.size($private.sorterListeners) > 0) {
-                            _.each ($private.sorterListeners, function (listener) {
-                                if (_.isFunction(listener)) {
-                                    listener.apply(listener, [$this.sorters]);
-                                }
-                            });
-                        }
+                        $private.dispatchSorterEvent();
                     };
 
                     /**
@@ -1746,6 +1740,21 @@ angular.module('Web.Components')
                                     $this.pagination.page = persistentParams['dgp'];
                                 }
                             }
+                        }
+                    };
+
+                    /**
+                     * Dispatch sorter event
+                     */
+                    $private.dispatchSorterEvent = function ()
+                    {
+                        // Check for sorter listeners and execute them if any
+                        if (_.size($private.sorterListeners) > 0) {
+                            _.each ($private.sorterListeners, function (listener) {
+                                if (_.isFunction(listener)) {
+                                    listener.apply(listener, [$this.sorters]);
+                                }
+                            });
                         }
                     };
 
