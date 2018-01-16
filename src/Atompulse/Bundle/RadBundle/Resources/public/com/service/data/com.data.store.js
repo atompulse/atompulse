@@ -57,14 +57,14 @@ angular.module('Web.Components')
                     }
 
                     return record.data;
-                }
+                },
 
                 /**
                  * Remove object from local storage
                  * @param key
                  */
                 remove: function (key) {
-                    return store.remove(key);
+                    store.remove(key);
                 }
             };
 
