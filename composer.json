@@ -28,7 +28,7 @@
     ]
   },
   "require": {
-    "symfony/symfony": "3.*",
+    "symfony/lts": "v3",
     "league/json-guard": "^0.5.1",
     "fzaninotto/faker": "^1.6@dev",
     "propel/propel-bundle": "dev-build-properties-fix"
