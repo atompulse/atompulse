@@ -18,7 +18,6 @@
   ],
   "autoload": {
     "psr-4": {
-      "Atompulse\\Bridge\\": "src/Atompulse/Bridge/",
       "Atompulse\\Bundle\\": "src/Atompulse/Bundle/",
       "Atompulse\\Component\\": "src/Atompulse/Component/",
       "Atompulse\\Utils\\": "src/Atompulse/Utils/"
@@ -30,6 +29,7 @@
   "require": {
     "symfony/lts": "v3",
     "league/json-guard": "^0.5.1",
+    "composer/composer": "^1.6.0",
     "fzaninotto/faker": "^1.6@dev",
     "propel/propel-bundle": "dev-build-properties-fix"
   },
