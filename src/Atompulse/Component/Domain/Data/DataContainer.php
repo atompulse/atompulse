@@ -11,6 +11,7 @@ use Atompulse\Component\Data\Transform;
 /**
  * Trait DataContainer
  * @package Atompulse\Component\Domain\Data
+ * @deprecated Naming convention deprecation. Use DataContainerTrait instead!
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */

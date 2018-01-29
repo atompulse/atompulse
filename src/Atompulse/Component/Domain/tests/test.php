@@ -1,8 +1,27 @@
 <?php
 
-require_once "../vendor/autoload.php";
+require_once "../../../../../vendor/autoload.php";
 
 use Atompulse\Component\Domain\tests\model;
+
+use Atompulse\Component\Data\Transform;
+
+print_r(Transform::arrayDelta([
+	'a' => 'b',
+	'c' => [
+		'd' => 'e',
+		'f' => 'Hello',
+	],
+], [
+	'a' => 'b',
+	'c' => [
+		'd' => 'es',
+		'f' => 'Goodbye',
+	],
+    'd'
+]));
+
+return;
 
 $dateAdded = new \DateTime('2017-07-07');
 $category = new model\CategoryData(['name' => 'Sedan']);

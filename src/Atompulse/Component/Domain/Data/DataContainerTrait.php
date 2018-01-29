@@ -47,10 +47,8 @@ trait DataContainerTrait
     /**
      * @inheritdoc
      * @param string $property
-     * @param mixed $value Value of property
-     * @throws PropertyNotValidException Thrown if property is not defined into validProperties.
-     * @throws PropertyValueNotValidException Thrown if property value type is inconsistent with declaration
-     * @return void
+     * @param $value
+     * @throws PropertyNotValidException
      */
     public function __set(string $property, $value)
     {
@@ -137,23 +135,25 @@ trait DataContainerTrait
      * @param string $property
      * @param array $constraints
      * @param null $defaultValue
-     * @throws PropertyNotValidException
+     * @return DataContainerInterface
      */
-    public function defineProperty(string $property, $constraints = [], $defaultValue = null)
+    public function defineProperty(string $property, array $constraints = [], $defaultValue = null) : DataContainerInterface
     {
         $this->validProperties[$property] = $constraints;
 
         if (!is_null($defaultValue)) {
             $this->defaultValues[$property] = $defaultValue;
         }
+
+        return $this;
     }
 
     /**
-     * Check if a property is valid
+     * @inheritdoc
      * @param string $property
      * @return bool
      */
-    public function isValidProperty(string $property)
+    public function isValidProperty(string $property) : bool
     {
         if (!empty($this->validProperties) && !array_key_exists($property, $this->validProperties)) {
             return false;
@@ -163,32 +163,33 @@ trait DataContainerTrait
     }
 
     /**
-     * Get the defined list of properties
+     * @inheritdoc
      * @return array
      */
-    public function getProperties()
+    public function getProperties() : array
     {
         return $this->validProperties;
     }
 
     /**
-     * Get the list of properties names
+     * @inheritdoc
      * @return array
      */
-    public function getPropertiesList()
+    public function getPropertiesList() : array
     {
         return array_keys($this->validProperties);
     }
 
     /**
-     * Set a property value
+     * @inheritdoc
      * @info Usage of $this->properties[$property] = $value / $this->properties[$property][] = $value
-     * should be avoided, use addPropertyValue instead.
+     * should be avoided unless explicitly needed, use addPropertyValue instead.
      * @param string $property
-     * @param mixed $value
+     * @param $value
+     * @return DataContainerInterface
      * @throws PropertyNotValidException
      */
-    public function addPropertyValue(string $property, $value)
+    public function addPropertyValue(string $property, $value) : DataContainerInterface
     {
         if (!$this->isValidProperty($property)) {
             throw new PropertyNotValidException(sprintf($this->propertyNotValidErrorMessage, $property, __CLASS__));
@@ -204,23 +205,18 @@ trait DataContainerTrait
 
         // perform property value type checking
         $this->checkTypes($property, $this->properties[$property]);
+
+        return $this;
     }
 
     /**
-     * Transform data properties into PHP-array structure keeping
-     * property items in their respective DataContainerInterface state if the values are objects
-     *
-     * This method will ONLY return the current state of the data with object and primitives,
-     * it will not return default values or property values that have not been set.
-     *
-     * @see To get a normalized result set use ::normalizeData method
-     *
+     * @inheritdoc
      * @param string|null $property
      * @return array [key => value] Data structure
      * @throws PropertyNotValidException
      * @throws PropertyValueNotValidException
      */
-    public function toArray(string $property = null)
+    public function toArray(string $property = null) : array
     {
         $properties = $this->properties;
 
@@ -274,13 +270,15 @@ trait DataContainerTrait
     }
 
     /**
-     * Populate properties from input array
+     * @inheritdoc
      * @param array $data
      * @param bool|true $skipExtraProperties Ignore extra properties that do not belong to the class
      * @param bool|true $skipMissingProperties Ignore missing properties in input $data
      * @return $this
+     * @throws PropertyMissingException
+     * @throws PropertyNotValidException
      */
-    public function fromArray(array $data, bool $skipExtraProperties = true, bool $skipMissingProperties = true)
+    public function fromArray(array $data, bool $skipExtraProperties = true, bool $skipMissingProperties = true) : DataContainerInterface
     {
         $extraProperties = array_keys(array_diff_key($data, $this->validProperties));
 
@@ -300,18 +298,14 @@ trait DataContainerTrait
     }
 
     /**
-     * Normalize all properties of this container:
-     * - handles default value resolution
-     * - handles DataContainerInterface property values normalization
-     * - return simple array with key->value OR multidimensional array with key->array but never object values
+     * @inheritdoc
      * @param string|null $property Normalize a specific property of the container
-     * @return array|mixed
+     * @return array
      * @throws PropertyNotValidException
-     * @throws PropertyValueNormalizationException
      */
-    public function normalizeData(PropertyNormalizer $propertyNormalizer =  null)
+    public function normalizeData(string $property = null) : array
     {
-        $data = $this->propertyNormalizer->normalize();
+        $data = [];
 
         $validProperties = $this->validProperties;
 
@@ -331,7 +325,7 @@ trait DataContainerTrait
     }
 
     /**
-     * Set custom $errorMessage for PropertyNotValidException
+     * @inheritdoc
      * @see There are 2 string parameters that will be replaced in the message using sprintf
      * first is the invalid $property and the second is the current class name
      * @template 'Property ["%s"] not valid for this class ["%s"]'
@@ -379,7 +373,7 @@ trait DataContainerTrait
      * @return bool
      * @throws PropertyValueNotValidException
      */
-    private function checkTypes(string $property, $value)
+    private function checkTypes(string $property, $value) : bool
     {
         $integrityConstraints = $this->getIntegritySpecification($property);
 
@@ -440,7 +434,7 @@ trait DataContainerTrait
      * @param string $property
      * @return array
      */
-    private function getIntegritySpecification(string $property)
+    private function getIntegritySpecification(string $property) : array
     {
         $constraints = $this->validProperties[$property];
 
@@ -456,7 +450,7 @@ trait DataContainerTrait
      * @param string $integritySpecification
      * @return array
      */
-    private function parseIntegritySpecification(string $integritySpecification)
+    private function parseIntegritySpecification(string $integritySpecification) : array
     {
         $parsedIntegritySpecification = [];
 
