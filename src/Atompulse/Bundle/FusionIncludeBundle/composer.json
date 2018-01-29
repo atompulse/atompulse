@@ -1,0 +1,39 @@
+{
+  "name": "atompulse/fusion-include-bundle",
+  "description": "Atompulse Fusion Include Symfony Bundle",
+  "type": "symfony-bundle",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Bundle\\FusionIncludeBundle\\": ""
+    }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "/Users/petru.cojocar/workspace/atompulse/src/Atompulse/Component/FusionInclude"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "symfony/http-kernel": "^3||^4",
+    "twig/extensions": "^1.5.0",
+    "atompulse/fusion-include": "dev-master",
+    "atompulse/domain": "dev-master"
+  },
+  "config": {
+    "sort-packages": true,
+    "vendor-dir": "vendor",
+    "preferred-install": "dist"
+  },
+  "extra": {
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
