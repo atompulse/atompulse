@@ -25,8 +25,7 @@ class FusionIncludeEngine
     protected $namespaces = [];
 
     /**
-     * @param FusionAsset $asset
-     * @throws \Atompulse\Component\Domain\Data\Exception\PropertyNotValidException
+     * @param FusionAsset $fusionAsset
      */
     public function addAsset(FusionAsset $fusionAsset)
     {
@@ -50,6 +49,14 @@ class FusionIncludeEngine
     }
 
     /**
+     * @return array
+     */
+    public function getNamespaces()
+    {
+        return $this->namespaces;
+    }
+
+    /**
      * @return FusionAssetCollection
      */
     public function getCollection() : FusionAssetCollection
@@ -57,14 +64,22 @@ class FusionIncludeEngine
         return $this->assetCollection;
     }
 
-    public function getGroup(string $group)
+    /**
+     * @param string $group
+     * @return array
+     */
+    public function getGroup(string $group) : array
     {
-
+        return $this->assetCollection->getGroupAssets($group);
     }
 
+    /**
+     * @param string $asset
+     * @return FusionAsset
+     */
     public function getAsset(string $asset)
     {
-
+        return $this->assetCollection->getAsset($asset);
     }
 
 }

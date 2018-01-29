@@ -3,7 +3,7 @@
 namespace Atompulse\Component\FusionInclude\Assets\Data;
 
 use Atompulse\Bundle\FusionBundle\Assets\Data\FusionAsset;
-use Atompulse\Component\Domain\Data\DataContainer;
+use Atompulse\Component\Domain\Data\DataContainerTrait;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
@@ -17,7 +17,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  */
 class FusionAssetCollection implements DataContainerInterface
 {
-    use DataContainer;
+    use DataContainerTrait;
 
     /**
      * @var array
@@ -63,6 +63,15 @@ class FusionAssetCollection implements DataContainerInterface
     }
 
     /**
+     * @param string $asset
+     * @return FusionAsset
+     */
+    public function getAsset(string $asset) : FusionAsset
+    {
+        return $this->assets[$asset];
+    }
+
+    /**
      * @return array
      */
     public function getGroups() : array
@@ -81,7 +90,7 @@ class FusionAssetCollection implements DataContainerInterface
             return $this->groupsMap[$group];
         }
 
-        throw new \Exception("There were no assets found with this group [$group]");
+        throw new \Exception("No assets found declared under this group name [$group]");
     }
 
     /**

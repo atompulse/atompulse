@@ -1,7 +1,7 @@
 <?php
 namespace Atompulse\Bundle\FusionBundle\Assets\Data;
 
-use Atompulse\Component\Domain\Data\DataContainer;
+use Atompulse\Component\Domain\Data\DataContainerTrait;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
@@ -18,7 +18,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  */
 class FusionAsset implements DataContainerInterface
 {
-    use DataContainer;
+    use DataContainerTrait;
 
     /**
      * @param array|null $data

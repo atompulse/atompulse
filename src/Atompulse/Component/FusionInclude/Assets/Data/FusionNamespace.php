@@ -2,7 +2,7 @@
 
 namespace Atompulse\Component\FusionInclude\Assets\Data;
 
-use Atompulse\Component\Domain\Data\DataContainer;
+use Atompulse\Component\Domain\Data\DataContainerTrait;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
@@ -16,7 +16,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  */
 class FusionNamespace implements DataContainerInterface
 {
-    use DataContainer;
+    use DataContainerTrait;
 
     /**
      * @param array|null $data
