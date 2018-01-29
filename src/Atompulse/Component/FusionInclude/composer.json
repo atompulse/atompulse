@@ -1,0 +1,30 @@
+{
+  "name": "atompulse/fusion-include",
+  "description": "Atompulse Fusion Include Component",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Petru Cojocar",
+      "email": "petru.cojocar@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Atompulse\\Component\\FusionInclude\\": ""
+    }
+  },
+  "require": {
+    "php": ">=7.1",
+    "atompulse/domain": "dev-master"
+  },
+  "config": {
+    "sort-packages": true,
+    "vendor-dir": "vendor",
+    "preferred-install": "dist"
+  },
+  "extra": {
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
