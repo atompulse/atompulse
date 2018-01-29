@@ -24,10 +24,10 @@
   ],
   "require": {
     "php": ">=7.1",
-    "symfony/http-kernel": "^4",
-    "symfony/http-foundation": "^4",
-    "symfony/config": "^4",
-    "symfony/dependency-injection": "^4",
+    "symfony/http-kernel": "^3||^4",
+    "symfony/http-foundation": "^3||^4",
+    "symfony/config": "^3||^4",
+    "symfony/dependency-injection": "^3||^4",
     "friendsofsymfony/jsrouting-bundle": "2.0.*@dev"
   },
   "config": {
