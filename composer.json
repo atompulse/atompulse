@@ -28,29 +28,24 @@
   },
   "require": {
     "symfony/lts": "v3",
-    "league/json-guard": "^0.5.1",
-    "composer/composer": "^1.6.0",
-    "fzaninotto/faker": "^1.6@dev",
+    "league/json-guard": "^0.5",
+    "composer/composer": "^1.6",
+    "fzaninotto/faker": "^1.7",
     "propel/propel-bundle": "dev-build-properties-fix"
   },
   "require-dev": {
-    "sensio/generator-bundle": "^3.0",
-    "sensio/distribution-bundle": "^5.0.19",
-    "sensio/framework-extra-bundle": "^3.0.2"
+    "sensio/generator-bundle": "^3.1",
+    "sensio/distribution-bundle": "^5.0",
+    "sensio/framework-extra-bundle": "^3.0"
   },
   "suggest": {
       "sokil/php-mongo": "Allows mongodb datasource for data grid component"
   },
   "config": {
     "sort-packages": true,
-    "vendor-dir": "vendor",
     "preferred-install": "dist"
   },
-  "extra": {
-    "symfony-app-dir": "app",
-    "symfony-bin-dir": "bin",
-    "symfony-var-dir": "var"
-  },
+  "extra": {},
   "minimum-stability": "dev",
   "prefer-stable": true
 }
