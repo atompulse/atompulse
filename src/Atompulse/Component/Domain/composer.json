@@ -18,7 +18,7 @@
     ]
   },
   "require": {
-    "atompulse/data": "dev-master"
+    "atompulse/data": "^1.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

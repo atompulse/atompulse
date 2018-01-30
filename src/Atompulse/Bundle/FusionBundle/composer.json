@@ -1,7 +1,7 @@
 {
   "name": "atompulse/fusion-bundle",
   "description": "Atompulse FusionBundle",
-  "type": "library",
+  "type": "symfony-bundle",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -13,9 +13,16 @@
       "psr-4": { "Atompulse\\Bundle\\FusionBundle\\": "" }
   },
   "require": {
-    "symfony/symfony": "~2.8||~3.0",
-    "atompulse/domain": "dev-master",
-    "atompulse/data": "dev-master"
+    "symfony/http-kernel": "^2||^3",
+    "symfony/http-foundation": "^2||^3",
+    "symfony/config": "^2||^3",
+    "symfony/dependency-injection": "^2||^3",
+    "symfony/framework-bundle": "^2||^3",
+    "symfony/yaml": "^2||^3",
+    "twig/twig": "^1||^2",
+    "twig/extensions": "^1",
+    "atompulse/domain": "^1.0",
+    "atompulse/data": "^1.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

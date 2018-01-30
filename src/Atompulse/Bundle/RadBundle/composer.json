@@ -1,7 +1,7 @@
 {
   "name": "atompulse/rad-bundle",
   "description": "Atompulse RAD Bundle",
-  "type": "library",
+  "type": "symfony-bundle",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -14,8 +14,13 @@
   },
   "require": {
     "php": ">=7.1",
-    "symfony/symfony": "~2.8||~3.0",
-    "atompulse/fusion-bundle": "dev-master",
+    "symfony/http-kernel": "^2||^3",
+    "symfony/http-foundation": "^2||^3",
+    "symfony/config": "^2||^3",
+    "symfony/dependency-injection": "^2||^3",
+    "symfony/framework-bundle": "^2||^3",
+    "symfony/yaml": "^2||^3",
+    "atompulse/fusion-bundle": "^1.0",
     "friendsofsymfony/jsrouting-bundle": "2.0.*@dev"
   },
   "config": {

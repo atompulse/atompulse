@@ -18,7 +18,6 @@
   ],
   "autoload": {
     "psr-4": {
-      "Atompulse\\Bridge\\": "src/Atompulse/Bridge/",
       "Atompulse\\Bundle\\": "src/Atompulse/Bundle/",
       "Atompulse\\Component\\": "src/Atompulse/Component/",
       "Atompulse\\Utils\\": "src/Atompulse/Utils/"

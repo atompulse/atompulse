@@ -18,10 +18,10 @@
     ]
   },
   "require": {
-    "atompulse/domain": "dev-master"
+    "atompulse/domain": "^1.0"
   },
   "require-dev": {
-    "symfony/yaml": "^3.0"
+    "symfony/yaml": "^2.8||^3.0"
   },
   "suggest": {
     "sokil/php-mongo": "Allows mongodb DataSource",
