@@ -1,7 +1,7 @@
 {
   "name": "atompulse/rad-bundle",
   "description": "Atompulse RAD Bundle",
-  "type": "library",
+  "type": "symfony-bundle",
   "license": "Apache-2.0",
   "authors": [
     {
@@ -10,18 +10,10 @@
     }
   ],
   "autoload": {
-      "psr-4": { "Atompulse\\Bundle\\RadBundle\\": "" }
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "/Volumes/etc/workspace/atompulse/src/Atompulse/Component/FusionInclude"
-    },
-    {
-      "type": "path",
-      "url": "/Volumes/etc/workspace/atompulse/src/Atompulse/Bundle/FusionIncludeBundle"
+    "psr-4": {
+      "Atompulse\\Bundle\\RadBundle\\": ""
     }
-  ],
+  },
   "require": {
     "php": ">=7.1",
     "symfony/http-kernel": "^3||^4",
