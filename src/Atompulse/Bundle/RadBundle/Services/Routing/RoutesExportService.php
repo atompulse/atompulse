@@ -1,93 +1,140 @@
 <?php
 namespace Atompulse\Bundle\RadBundle\Services\Routing;
 
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpFoundation\Request;
+use Atompulse\Bundle\FusionBundle\Services\FusionDataManager;
+use FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractor;
 use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
 /**
  * Class RoutesExportService
+ *
  * @package Atompulse\Bundle\RadBundle\Services\Routing
  *
- * @author Petru Cojocar <petru.cojocar@gmail.com>
+ * @author  Petru Cojocar <petru.cojocar@gmail.com>
  */
-class RoutesExportService
+final class RoutesExportService
 {
-    use ContainerAwareTrait;
+    const CACHE_FOLDER = 'rad-bundle';
+
+    /** @var string */
+    private $cacheDir;
+
+    /** @var \FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractor */
+    private $extractor;
+
+    /** @var \Atompulse\Bundle\FusionBundle\Services\FusionDataManager */
+    private $fusionDataManager;
+
+    /** @var \Symfony\Component\HttpFoundation\Request */
+    private $request;
 
     /**
-     * @var \Symfony\Component\HttpFoundation\Request;
+     * RoutesExportService constructor.
      */
-    protected $request = null;
+    public function __construct(ExposedRoutesExtractor $extractor, FusionDataManager $fusionDataManager, RequestStack $requestStack, $cacheDir)
+    {
+        $this->cacheDir = $cacheDir;
+        $this->extractor = $extractor;
+        $this->fusionDataManager = $fusionDataManager;
+        $this->request = $requestStack->getCurrentRequest();
+    }
 
     /**
-     * @param FilterResponseEvent $event
+     * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
      */
     public function onKernelResponse(FilterResponseEvent $event)
     {
-        if ($this->container->get('fusion.data.manager')->isControllerActionQualifiedForData()) {
-            $this->request = $event->getRequest();
-            $this->container->get('fusion.data.manager')->setData('Routing', $this->getExposedRoutes(), 'Application');
+        if ($this->fusionDataManager->isControllerActionQualifiedForData()) {
+            $this->fusionDataManager->setData('Routing', $this->getExposedRoutes(), 'Application');
         }
     }
 
     /**
-     * Get Exposed Routes
+     * Generate cache file.
+     *
+     * @param array $context
+     *
+     * @return string
+     */
+    private function getCacheFile(array $context): string
+    {
+        $cachePath = $this->cacheDir . DIRECTORY_SEPARATOR . self::CACHE_FOLDER;
+
+        if (!file_exists($cachePath)) {
+            mkdir($cachePath);
+        }
+
+        $hash = \sha1(implode('_', $context));
+
+        return $cachePath . DIRECTORY_SEPARATOR . $hash . '.json';
+    }
+
+    /**
+     * Get Exposed Routes.
+     *
      * @return array|mixed
      */
-    protected function getExposedRoutes()
+    private function getExposedRoutes()
     {
-        $debug = false;
-        $extractor = $this->container->get('fos_js_routing.extractor');
+        $context = [
+            'base_url' => $this->extractor->getBaseUrl(),
+            'host'     => $this->extractor->getHost(),
+            'locale'   => $this->request->getLocale(),
+            'prefix'   => $this->extractor->getPrefix($this->request->getLocale()),
+            'scheme'   => $this->extractor->getScheme(),
+        ];
 
-        $cacheFile = $extractor->getCachePath($this->request->getLocale());
-        $cache = new ConfigCache($cacheFile, $debug);
+        $cacheFile = $this->getCacheFile($context);
 
-        if (!$cache->isFresh()) {
-            $preparedRoutes = [];
-            foreach ($extractor->getRoutes() as $name => $route) {
-                $compiledRoute = $route->compile();
-                $defaults      = array_intersect_key(
-                    $route->getDefaults(),
-                    array_fill_keys($compiledRoute->getVariables(), null)
-                );
+        $cache = new ConfigCache($cacheFile, false);
 
-                if (!isset($defaults['_locale']) && in_array('_locale', $compiledRoute->getVariables())) {
-                    $defaults['_locale'] = $this->request->getLocale();
-                }
-
-                $preparedRoutes[$name] = [
-                    'tokens'       => $compiledRoute->getTokens(),
-                    'defaults'     => $defaults,
-                    'requirements' => $route->getRequirements(),
-                    'hosttokens'   => method_exists($compiledRoute, 'getHostTokens') ? $compiledRoute->getHostTokens() : array(),
-                ];
-            }
-
-            $domain = $extractor->getHost();
-
-            if ($this->container->hasParameter('domain')) {
-                $domain = $this->container->getParameter('domain');
-            }
-
-            $routing = [
-                'context' => [
-                    'base_url' => $extractor->getBaseUrl(),
-                    'prefix' => $extractor->getPrefix($this->request->getLocale()),
-                    'host' => $domain,
-                    'scheme' => $extractor->getScheme(),
-                    'locale' => $this->request->getLocale()
-                ],
-                'routes' => $preparedRoutes,
-            ];
-
-            $cache->write(serialize($routing), $extractor->getResources());
-        } else {
-            $routing = unserialize(file_get_contents($cache->getPath()));
+        if ($cache->isFresh()) {
+            return unserialize(file_get_contents($cache->getPath()));
         }
+
+        $routing = [
+            'context' => $context,
+            'routes'  => $this->getRoutes(),
+        ];
+
+        $cache->write(serialize($routing), $this->extractor->getResources());
 
         return $routing;
     }
 
+    /**
+     * Prepare routes to be exposed.
+     *
+     * @return array
+     */
+    private function prepareRoutes(): array
+    {
+        $preparedRoutes = [];
+
+        foreach ($this->extractor->getRoutes() as $name => $route) {
+            $compiledRoute = $route->compile();
+
+            $defaults = \array_intersect_key(
+                $route->getDefaults(),
+                \array_fill_keys($compiledRoute->getVariables(), null)
+            );
+
+            if (!isset($defaults['_locale']) && \in_array('_locale', $compiledRoute->getVariables())) {
+                $defaults['_locale'] = $this->request->getLocale();
+            }
+
+            $preparedRoutes[$name] = [
+                'defaults'     => $defaults,
+                'requirements' => $route->getRequirements(),
+                'tokens'       => $compiledRoute->getTokens(),
+                'hosttokens'   => \method_exists($compiledRoute, 'getHostTokens')
+                    ? $compiledRoute->getHostTokens()
+                    : [],
+            ];
+        }
+
+        return $preparedRoutes;
+    }
 }
