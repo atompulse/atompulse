@@ -6,8 +6,11 @@ services:
   # Export routes to web
   rad.application.routing.export:
     class:  Atompulse\Bundle\RadBundle\Services\Routing\RoutesExportService
-    calls:
-      - [setContainer, ['@service_container']]
+    arguments:
+      - '@fos_js_routing.extractor'
+      - '@fusion.data.manager'
+      - '@request_stack'
+      - '%kernel.cache_dir%'
     tags:
       - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
 
