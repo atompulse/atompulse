@@ -1,12 +1,12 @@
 <?php
-namespace Atompulse\Bundle\FusionBundle\Assets\Data;
+namespace Atompulse\Component\FusionInclude\Assets\Data;
 
 use Atompulse\Component\Domain\Data\DataContainerTrait;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
 /**
  * Class FusionImportData
- * @package Atompulse\Bundle\FusionBundle\Assets\Data
+ * @package Atompulse\Component\FusionInclude\Assets\Data
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  *
@@ -25,15 +25,16 @@ class FusionAsset implements DataContainerInterface
      */
     public function __construct(array $data = null)
     {
-        $this->validProperties = [
-            'name'  => 'string',
-            'namespace'  => 'string|null',
-            'group' => 'string|null',
-            'order' => 'int|null',
-            'files' => 'array',
-        ];
+        $this
+            ->defineProperty('name', ['string'])
+            ->defineProperty('namespace', ['string'])
+            ->defineProperty('group', ['string','null'], 'global')
+            ->defineProperty('order', ['int','null'], 0)
+            ->defineProperty('files', ['array']);
 
-        return $this->fromArray($data);
+        if ($data) {
+            $this->fromArray($data);
+        }
     }
 
     /**

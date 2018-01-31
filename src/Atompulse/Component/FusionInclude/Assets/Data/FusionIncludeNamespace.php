@@ -15,7 +15,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  * @property string source
  * @property string target
  */
-class FusionNamespace implements DataContainerInterface
+class FusionIncludeNamespace implements DataContainerInterface
 {
     use DataContainerTrait;
 
@@ -27,9 +27,11 @@ class FusionNamespace implements DataContainerInterface
         $this
             ->defineProperty('name', ['string'])
             ->defineProperty('source', ['string'])
-            ->defineProperty('target', 'string');
+            ->defineProperty('target', ['string']);
 
-        return $this->fromArray($data);
+        if ($data) {
+            $this->fromArray($data);
+        }
     }
 
 }

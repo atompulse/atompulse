@@ -2,9 +2,8 @@
 
 namespace Atompulse\Component\FusionInclude;
 
-use Atompulse\Bundle\FusionBundle\Assets\Data\FusionAsset;
-use Atompulse\Component\FusionInclude\Assets\Data\FusionAssetCollection;
-use Atompulse\Component\FusionInclude\Assets\Data\FusionNamespace;
+use Atompulse\Component\FusionInclude\Assets\Data\FusionAsset;
+use Atompulse\Component\FusionInclude\Assets\Data\FusionIncludeNamespace;
 
 /**
  * Class FusionIncludeEngine
@@ -15,9 +14,9 @@ use Atompulse\Component\FusionInclude\Assets\Data\FusionNamespace;
 class FusionIncludeEngine
 {
     /**
-     * @var FusionAssetCollection
+     * @var array
      */
-    protected $assetCollection = null;
+    protected $assets = [];
 
     /**
      * @var array
@@ -25,61 +24,117 @@ class FusionIncludeEngine
     protected $namespaces = [];
 
     /**
-     * @param FusionAsset $fusionAsset
+     * @var array
      */
-    public function addAsset(FusionAsset $fusionAsset)
+    protected $groupsMap = [];
+
+    /**
+     * @var array
+     */
+    protected $namespaceMap = [];
+
+    /**
+     * @var string
+     */
+    protected $defaultGroup = 'global';
+
+    public function __construct()
     {
-        $this->assetCollection->addAsset($fusionAsset);
     }
 
     /**
-     * @param FusionAssetCollection $fusionAssetCollection
+     * @param FusionAsset $asset
      */
-    public function addCollection(FusionAssetCollection $fusionAssetCollection)
+    public function addAsset(FusionAsset $asset)
     {
-        $this->assetCollection = $fusionAssetCollection;
+        $this->assets[$asset->name] = $asset;
+        $this->groupsMap[$asset->group ?: $this->defaultGroup][] = $this->assets[$asset->name];
+        $this->namespaceMap[$asset->namespace][] = $this->assets[$asset->name];
     }
 
     /**
-     * @param FusionNamespace $fusionNamespace
+     * @param FusionIncludeNamespace $fusionNamespace
      */
-    public function addNamespace(FusionNamespace $fusionNamespace)
+    public function addNamespace(FusionIncludeNamespace $fusionNamespace)
     {
         $this->namespaces[$fusionNamespace->name] = $fusionNamespace;
-    }
-
-    /**
-     * @return array
-     */
-    public function getNamespaces()
-    {
-        return $this->namespaces;
-    }
-
-    /**
-     * @return FusionAssetCollection
-     */
-    public function getCollection() : FusionAssetCollection
-    {
-        return $this->assetCollection;
-    }
-
-    /**
-     * @param string $group
-     * @return array
-     */
-    public function getGroup(string $group) : array
-    {
-        return $this->assetCollection->getGroupAssets($group);
     }
 
     /**
      * @param string $asset
      * @return FusionAsset
      */
-    public function getAsset(string $asset)
+    public function getAsset(string $asset): FusionAsset
     {
-        return $this->assetCollection->getAsset($asset);
+        return $this->assets[$asset];
     }
 
+    /**
+     * @param string $namespace
+     * @return FusionIncludeNamespace
+     */
+    public function getNamespace(string $namespace): FusionIncludeNamespace
+    {
+        return $this->namespaces[$namespace];
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups(): array
+    {
+        return array_keys($this->groupsMap);
+    }
+
+    /**
+     * @param string $group
+     * @return array
+     * @throws \Exception
+     */
+    public function getGroupAssets(string $group): array
+    {
+        if (isset($this->groupsMap[$group])) {
+            return $this->groupsMap[$group];
+        }
+
+        throw new \Exception("No assets found under this group name [$group]");
+    }
+
+    /**
+     * @return array
+     */
+    public function getAssetsNamespaces(): array
+    {
+        return array_keys($this->namespaceMap);
+    }
+
+    /**
+     * @param string $namespace
+     * @return array
+     * @throws \Exception
+     */
+    public function getNamespaceAssets(string $namespace): array
+    {
+        if (isset($this->namespaceMap[$namespace])) {
+            return $this->namespaceMap[$namespace];
+        }
+
+        throw new \Exception("There were no assets found with this namespace [$namespace]");
+    }
+
+    /**
+     * @return array
+     */
+    public function getNamespaces() : array
+    {
+        return $this->namespaces;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAssets() : array
+    {
+        return $this->assets;
+    }
 }

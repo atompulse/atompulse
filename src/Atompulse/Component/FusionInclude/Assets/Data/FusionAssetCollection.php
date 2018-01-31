@@ -2,7 +2,7 @@
 
 namespace Atompulse\Component\FusionInclude\Assets\Data;
 
-use Atompulse\Bundle\FusionBundle\Assets\Data\FusionAsset;
+use Atompulse\Component\FusionInclude\Assets\Data\FusionAsset;
 use Atompulse\Component\Domain\Data\DataContainerTrait;
 use Atompulse\Component\Domain\Data\DataContainerInterface;
 
@@ -12,6 +12,7 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  *
+ * @property array namespaces
  * @property array assets
  *
  */
@@ -34,11 +35,12 @@ class FusionAssetCollection implements DataContainerInterface
      */
     public function __construct(array $data = null)
     {
-        $this->validProperties = [
-            'assets'  => 'array',
-        ];
+        $this->defineProperty('namespaces', ['array']);
+        $this->defineProperty('assets', ['array']);
 
-        return $this->fromArray($data);
+        if ($data) {
+            $this->fromArray($data);
+        }
     }
 
     /**
@@ -57,9 +59,9 @@ class FusionAssetCollection implements DataContainerInterface
      */
     public function addAsset(FusionAsset $asset)
     {
-        $this->assets[$asset->name] = $asset;
-        $this->groupsMap[$asset->group ?: 'global'][] = $this->assets[$asset->name];
-        $this->namespaceMap[$asset->name ?: '*'][] = $this->assets[$asset->name];
+        $this->addPropertyValue('assets', $asset);
+        $this->groupsMap[$asset->group ?: 'global'][] = $asset;
+        $this->namespaceMap[$asset->name ?: '*'][] = $asset;
     }
 
     /**
@@ -69,6 +71,35 @@ class FusionAssetCollection implements DataContainerInterface
     public function getAsset(string $asset) : FusionAsset
     {
         return $this->assets[$asset];
+    }
+
+    /**
+     * @param array $assets
+     */
+    public function setNamespaces(array $assets)
+    {
+        foreach ($assets as $assetData) {
+            $asset = new FusionAsset($assetData);
+            $this->addAsset($asset);
+        }
+    }
+
+    /**
+     * @param FusionIncludeNamespace $fusionNamespace
+     */
+    public function addNamespace(FusionIncludeNamespace $fusionNamespace)
+    {
+        $this->addPropertyValue('namespaces', $fusionNamespace);
+//        $this->namespaces[$fusionNamespace->name] = $fusionNamespace;
+    }
+
+    /**
+     * @param string $namespace
+     * @return FusionIncludeNamespace
+     */
+    public function getNamespace(string $namespace) : FusionIncludeNamespace
+    {
+        return $this->namespaces[$namespace];
     }
 
     /**
@@ -90,13 +121,13 @@ class FusionAssetCollection implements DataContainerInterface
             return $this->groupsMap[$group];
         }
 
-        throw new \Exception("No assets found declared under this group name [$group]");
+        throw new \Exception("No assets found under this group name [$group]");
     }
 
     /**
      * @return array
      */
-    public function getNamespaces() : array
+    public function getDeclaredNamespaces() : array
     {
         return $this->namespaceMap;
     }
@@ -112,7 +143,7 @@ class FusionAssetCollection implements DataContainerInterface
             return $this->namespaceMap[$namespace];
         }
 
-        throw new \Exception("There were no assets found with this group [$namespace]");
+        throw new \Exception("There were no assets found with this namespace [$namespace]");
     }
 
 }
