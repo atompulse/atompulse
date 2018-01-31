@@ -12,7 +12,8 @@ use Atompulse\Component\Domain\Data\DataContainerInterface;
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  *
  * @property string name
- * @property string path
+ * @property string source
+ * @property string target
  */
 class FusionNamespace implements DataContainerInterface
 {
@@ -23,10 +24,10 @@ class FusionNamespace implements DataContainerInterface
      */
     public function __construct(array $data = null)
     {
-        $this->validProperties = [
-            'name'  => 'string',
-            'path'  => 'string',
-        ];
+        $this
+            ->defineProperty('name', ['string'])
+            ->defineProperty('source', ['string'])
+            ->defineProperty('target', 'string');
 
         return $this->fromArray($data);
     }
