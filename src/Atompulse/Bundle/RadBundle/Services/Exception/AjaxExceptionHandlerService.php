@@ -1,20 +1,22 @@
 <?php
 namespace Atompulse\Bundle\RadBundle\Services\Exception;
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
 /**
- * Class AjaxExceptionHandlerService
+ * Class AjaxExceptionHandlerService.
+ *
  * @package Atompulse\Bundle\RadBundle\Services
  *
- * @author Petru Cojocar <petru.cojocar@gmail.com>
+ * @author  Petru Cojocar <petru.cojocar@gmail.com>
  */
 class AjaxExceptionHandlerService
 {
     /**
      * Intercept Exceptions and send valid ajax responses
      * The idea is to NOT send HTML response for an ajax request
+     *
      * @param GetResponseForExceptionEvent $event
      */
     public function onKernelException(GetResponseForExceptionEvent $event)
@@ -24,25 +26,23 @@ class AjaxExceptionHandlerService
 
         // handle only AJAX
         if ($event->getRequest()->isXmlHttpRequest()) {
-            $headers = [];
             $responseData = [
-                'status' => false,
-                'msg' => 'Application Exception',
-                'data' => [
+                'data'   => [
                     'exception' => [
                         'message' => $exception->getMessage(),
-                        'class' => get_class($exception),
-                        'file' => "{$exception->getFile()}:{$exception->getLine()}",
-                        'trace' => $exception->getTraceAsString()
-                    ]
-                ]
+                        'class'   => \get_class($exception),
+                        'file'    => \sprintf('%s:%s', $exception->getFile(), $exception->getLine()),
+                        'trace'   => $exception->getTraceAsString(),
+                    ],
+                ],
+                'msg'    => 'Application Exception',
+                'status' => false,
             ];
-            $response = new Response(json_encode($responseData), 500, $headers);
+
+            $response = new JsonResponse($responseData, 500);
 
             $event->setResponse($response);
             $event->stopPropagation();
         }
     }
-
-
 }
