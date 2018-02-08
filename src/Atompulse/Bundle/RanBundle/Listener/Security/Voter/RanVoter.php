@@ -11,7 +11,7 @@ use Atompulse\Bundle\RanBundle\Exception\InexistentRoleException;
 use Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser;
 
 /**
- * Class RoleNameAccessVoter
+ * Class RanVoter
  * @package Atompulse\Bundle\RanBundle\Listener\Security\Voter
  *
  * This is the heart of the RAN Authorization System :
@@ -20,7 +20,7 @@ use Atompulse\Bundle\RanBundle\Service\Security\SecurityAdviser;
  *
  * @author Petru Cojocar <petru.cojocar@gmail.com>
  */
-class RoleNameAccessVoter implements VoterInterface
+class RanVoter implements VoterInterface
 {
     /**
      * @var LoggerInterface
@@ -93,15 +93,15 @@ class RoleNameAccessVoter implements VoterInterface
 
     /**
      * Permission decision
-     * @param $checkedRoles
+     * @param $permissions
      * @return int
      */
-    protected function decideAccessForExplicitRoles($checkedRoles)
+    protected function decideAccessForExplicitRoles($permissions)
     {
-        $nrRolesToCheck = count($checkedRoles);
+        $nrRolesToCheck = count($permissions);
         $nrRolesOwned = 0;
 
-        foreach ($checkedRoles as $permission) {
+        foreach ($permissions as $permission) {
             if (!$this->securityAdviser->permissionExists($permission)) {
                 if (!$this->securityAdviser->canIgnoreMissingPermission()) {
                     throw new InexistentRoleException("Permission [$permission] does not exist");

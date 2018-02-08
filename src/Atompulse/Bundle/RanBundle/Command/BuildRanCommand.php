@@ -1,6 +1,7 @@
 <?php
 namespace Atompulse\Bundle\RanBundle\Command;
 
+use Atompulse\Bundle\RanBundle\Service\Ran\RanRouteProcessor;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,6 +59,8 @@ class BuildRanCommand extends ContainerAwareCommand
 
             /** @var $settings \Symfony\Component\Routing\Route */
             foreach ($allRoutes as $routeName => $settings) {
+                RanRouteProcessor::process($settings);
+
                 // store last analyzed route
                 $lastAnalyzedRoute = [
                     $routeName => $settings
@@ -71,7 +74,7 @@ class BuildRanCommand extends ContainerAwareCommand
                         continue;
                     }
 
-                    // analyze RAN : [group, label, scope, role]
+                    // analyze RAN : [group, label, scope, role, granted]
                     $routeNameData = explode('_', strtoupper($routeName));
 
                     if (is_numeric(key($ran))) {
@@ -83,6 +86,8 @@ class BuildRanCommand extends ContainerAwareCommand
                         $scope = isset($ran[2]) ? $ran[2] : (isset($ran[1]) ? 'action' : $defaultScope);
                         // role extraction: if role not explicit then use the exact route name
                         $role = isset($ran[3]) ? $ran[3] : $routeName;
+                        // granted extraction/checking : if no explicit [granted for] found then ignore
+                        $granted = isset($ran[4]) ? $ran[4] : false;
                     } else {
                         // group mandatory
                         $group = $ran['group'];
@@ -92,12 +97,16 @@ class BuildRanCommand extends ContainerAwareCommand
                         $scope = isset($ran['scope']) ? $ran['scope'] : (isset($ran['label']) ? 'action' : $defaultScope);
                         // role extraction: if role not explicit then use the exact route name
                         $role = isset($ran['role']) ? $ran['role'] : $routeName;
+                        //  granted extraction/checking : if no explicit [granted for] found then ignore
+                        $granted = isset($ran['granted']) ? $ran['granted'] : false;
                     }
 
                     // final role access name
                     $singleRole = 'RAN_' . strtoupper($role);
                     // final role group access name
                     $groupRole = 'RAN_' . strtoupper($group) . '_ALL';
+                    // final granted handling
+                    $granted = $granted ? $granted : $singleRole;
 
                     // initialize group if was not already in
                     if (!isset($roleAccessNamesGui[$group])) {
@@ -129,6 +138,7 @@ class BuildRanCommand extends ContainerAwareCommand
                             }
                             $roleAccessListSystem['requirements'][$routeName]['group'] = $groupRole;
                             $roleAccessListSystem['requirements'][$routeName]['single'] = $singleRole;
+                            $roleAccessListSystem['requirements'][$routeName]['granted'] = $granted;
                             break;
                         // add it everywhere
                         case 'action' :
@@ -138,6 +148,7 @@ class BuildRanCommand extends ContainerAwareCommand
                             $roleAccessListSystem['hierarchy'][$groupRole][] = $singleRole;
                             $roleAccessListSystem['requirements'][$routeName]['group'] = $groupRole;
                             $roleAccessListSystem['requirements'][$routeName]['single'] = $singleRole;
+                            $roleAccessListSystem['requirements'][$routeName]['granted'] = $granted;
                             break;
                     }
                 }

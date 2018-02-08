@@ -8,6 +8,14 @@ Resources
     [send Pull Requests](https://github.com/atompulse/atompulse/pulls)
     in the [main Atompulse repository](https://github.com/atompulse/atompulse)
 
+What does RAN mean?
+-----------------
+RAN means Role Authorization Name / Role Access Name, these concepts can be interpreted as [Permission] in common
+RBAC system denomination.
+In practice this translates simply as: "If user X has RAN Y then it can execute action Z", 
+but in the same time it can also translate such as: "If user X has RAN Y then it can view zone Z from a page"
+(thanks to symfony's built authorization checking mechanism)
+
 What is RanBundle?
 -----------------
 * enables symfony applications to implement a straight forward mechanism in authorizing access based on permissions.

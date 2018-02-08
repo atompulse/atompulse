@@ -10,7 +10,7 @@ services:
 
   # RAN security voter
   ran.security.voter:
-    class:      Atompulse\Bundle\RanBundle\Listener\Security\Voter\RoleNameAccessVoter
+    class:      Atompulse\Bundle\RanBundle\Listener\Security\Voter\RanVoter
     arguments:  ['@ran.security.adviser', '@logger']
     tags:
       - { name: security.voter }
