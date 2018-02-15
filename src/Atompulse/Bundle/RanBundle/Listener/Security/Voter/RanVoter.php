@@ -129,9 +129,9 @@ class RanVoter implements VoterInterface
     {
         $routeName = $request->get('_route');
 
-        $requiredPermissions = $this->securityAdviser->getRouteRequiredPermissions($routeName);
+        $requirements = $this->securityAdviser->getRouteRequiredPermissions($routeName);
 
-        if (!$requiredPermissions) {
+        if (!$requirements) {
             // since the route does not have a requirement we abstain
             return VoterInterface::ACCESS_ABSTAIN;
         }
@@ -140,8 +140,13 @@ class RanVoter implements VoterInterface
             return VoterInterface::ACCESS_GRANTED;
         }
 
-        $msg = "[$routeName] action requires one of [" . implode(',', $requiredPermissions) . "] permissions but current user has none of these";
+        $msg = "[$routeName] action requires one of the permissions [".$requirements['single'].','.$requirements['group']."] but current user has none of these.";
         $this->logger->alert($msg);
+
+        if (count($requirements['granted'])) {
+            $msg = "[$routeName] action requires one of the roles [".implode(',', $requirements['granted'])."] but current user has none of these.";
+            $this->logger->alert($msg);
+        }
 
         return VoterInterface::ACCESS_DENIED;
     }

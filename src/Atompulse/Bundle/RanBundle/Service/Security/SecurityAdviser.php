@@ -139,13 +139,19 @@ class SecurityAdviser
     {
         $this->checkToken();
 
-        $requiredPermissions = $this->getRouteRequiredPermissions($route);
+        $requirements = $this->getRouteRequiredPermissions($route);
 
-        if (!$requiredPermissions) {
+        if (!$requirements) {
             return true;
         }
 
-        return count(array_intersect($this->userPermissions['single'], $requiredPermissions)) > 0;
+        $requiredPermissions = [$requirements['group'], $requirements['single']];
+        $requiredRoles = $requirements['granted'];
+
+        $hasRequiredPermission = count(array_intersect($this->userPermissions['single'], $requiredPermissions)) > 0;
+        $hasRequiredRole = count($requiredRoles) == 0 ? true : count(array_intersect($this->userPermissions['single'], $requiredRoles)) > 0;
+
+        return $hasRequiredPermission || $hasRequiredRole;
     }
 
     /**

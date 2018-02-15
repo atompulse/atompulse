@@ -20,9 +20,6 @@ use Symfony\Component\Yaml\Yaml;
 class BuildRanCommand extends ContainerAwareCommand
 {
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -49,123 +46,85 @@ class BuildRanCommand extends ContainerAwareCommand
 
             $output->writeln("<info>Found a total of: <fg=blue>[" . count($allRoutes) . "]</fg=blue> routes.\nStarting to process routes..</info>");
 
-            $roleAccessNamesGui = [];
-            $roleAccessListSystem = [
+            $ranGuiTree = [];
+            $ranSystemTree = [
                 'hierarchy' => [],
                 'requirements' => []
             ];
 
-            $defaultScope = 'internal';
-
-            /** @var $settings \Symfony\Component\Routing\Route */
-            foreach ($allRoutes as $routeName => $settings) {
-                RanRouteProcessor::process($settings);
+            /** @var $routeConfiguration \Symfony\Component\Routing\Route */
+            foreach ($allRoutes as $routeName => $routeConfiguration) {
 
                 // store last analyzed route
                 $lastAnalyzedRoute = [
-                    $routeName => $settings
+                    $routeName => $routeConfiguration
                 ];
-                // check if route is secured by RAN
-                if ($settings->hasOption('ran')) {
 
-                    $ran = $settings->getOption('ran');
+                // check if route is secured by RAN
+                if ($routeConfiguration->hasOption('ran')) {
+
+                    $ran = $routeConfiguration->getOption('ran');
 
                     if (!is_array($ran)) {
                         continue;
                     }
 
-                    // analyze RAN : [group, label, scope, role, granted]
-                    $routeNameData = explode('_', strtoupper($routeName));
+                    // process the RAN configuration of the route
+                    $ranItem = RanRouteProcessor::process($routeName, $routeConfiguration);
 
-                    if (is_numeric(key($ran))) {
-                        // group mandatory
-                        $group = $ran[0];
-                        // label extraction: if label not given then will use the route name starting from the second word and humanize it
-                        $label = isset($ran[1]) ? $ran[1] : ucfirst(strtolower(implode(' ', array_slice($routeNameData, 1))));
-                        // scope extraction : if no scope defined but label defined then use 'action' otherwise use defaultScope
-                        $scope = isset($ran[2]) ? $ran[2] : (isset($ran[1]) ? 'action' : $defaultScope);
-                        // role extraction: if role not explicit then use the exact route name
-                        $role = isset($ran[3]) ? $ran[3] : $routeName;
-                        // granted extraction/checking : if no explicit [granted for] found then ignore
-                        $granted = isset($ran[4]) ? $ran[4] : false;
-                    } else {
-                        // group mandatory
-                        $group = $ran['group'];
-                        // label extraction: if label not given then will use the route name starting from the second word and humanize the it
-                        $label = isset($ran['label']) ? $ran['label'] : ucfirst(strtolower(implode(' ', array_slice($routeNameData, 1))));
-                        // scope extraction : if no scope defined but label defined then use 'action' otherwise use defaultScope
-                        $scope = isset($ran['scope']) ? $ran['scope'] : (isset($ran['label']) ? 'action' : $defaultScope);
-                        // role extraction: if role not explicit then use the exact route name
-                        $role = isset($ran['role']) ? $ran['role'] : $routeName;
-                        //  granted extraction/checking : if no explicit [granted for] found then ignore
-                        $granted = isset($ran['granted']) ? $ran['granted'] : false;
-                    }
-
-                    // final role access name
-                    $singleRole = 'RAN_' . strtoupper($role);
-                    // final role group access name
-                    $groupRole = 'RAN_' . strtoupper($group) . '_ALL';
-                    // final granted handling
-                    $granted = $granted ? $granted : $singleRole;
-
-                    // initialize group if was not already in
-                    if (!isset($roleAccessNamesGui[$group])) {
-                        $roleAccessNamesGui[$group] = [
-                            'role' => $groupRole,
+                    // initialize group
+                    if (!isset($ranGuiTree[$ranItem->group])) {
+                        $ranGuiTree[$ranItem->group] = [
+                            'role' => $ranItem->name,
                             'roles' => []
                         ];
 
                         // create group role hierarchy
-                        $roleAccessListSystem['hierarchy'][$groupRole] = [];
+                        $ranSystemTree['hierarchy'][$ranItem->group] = [];
                     }
 
-
-                    // assemble RAN item
-                    $ranItem = [
-                        'role' => $singleRole,
-                        'label' => $label,
-                        'scope' => $scope
-                    ];
-
-                    // decide by scope where to add this item
-                    switch ($scope) {
+                    // decide by context where to add this item
+                    if ($ranItem->context === 'internal') {
                         // add it only to system tree => will be checked by security system but not available on gui
                         // this is used for inheriting existing role
-                        case 'internal' :
-                            // system tree
-                            if (!in_array($singleRole, $roleAccessListSystem['hierarchy'][$groupRole])) {
-                                $roleAccessListSystem['hierarchy'][$groupRole][] = $singleRole;
-                            }
-                            $roleAccessListSystem['requirements'][$routeName]['group'] = $groupRole;
-                            $roleAccessListSystem['requirements'][$routeName]['single'] = $singleRole;
-                            $roleAccessListSystem['requirements'][$routeName]['granted'] = $granted;
-                            break;
+
+                        // system tree
+                        if (!in_array($ranItem->name, $ranSystemTree['hierarchy'][$ranItem->group])) {
+                            $ranSystemTree['hierarchy'][$ranItem->group][] = $ranItem->name;
+                        }
+                        $ranSystemTree['requirements'][$routeName]['group'] = $ranItem->group;
+                        $ranSystemTree['requirements'][$routeName]['single'] = $ranItem->name;
+                        $ranSystemTree['requirements'][$routeName]['granted'] = $ranItem->granted;
+                    } else {
                         // add it everywhere
-                        case 'action' :
-                            // gui tree
-                            $roleAccessNamesGui[$group]['roles'][$routeName] = $ranItem;
-                            // system tree
-                            $roleAccessListSystem['hierarchy'][$groupRole][] = $singleRole;
-                            $roleAccessListSystem['requirements'][$routeName]['group'] = $groupRole;
-                            $roleAccessListSystem['requirements'][$routeName]['single'] = $singleRole;
-                            $roleAccessListSystem['requirements'][$routeName]['granted'] = $granted;
-                            break;
+
+                        // gui tree
+                        $ranGuiTree[$ranItem->group]['roles'][$routeName] = [
+                            'role' => $ranItem->name,
+                            'label' => $ranItem->label,
+                            'scope' => $ranItem->context
+                        ];
+                        // system tree
+                        $ranSystemTree['hierarchy'][$ranItem->group][] = $ranItem->name;
+                        $ranSystemTree['requirements'][$routeName]['group'] = $ranItem->group;
+                        $ranSystemTree['requirements'][$routeName]['single'] = $ranItem->name;
+                        $ranSystemTree['requirements'][$routeName]['granted'] = $ranItem->granted;
                     }
                 }
             }
 
-            $output->writeln("<info>Processed <fg=blue>[" . count($roleAccessListSystem['requirements']) . "]</fg=blue> routes.\nTrying to save configs..<info>");
+            $output->writeln("<info>Processed <fg=blue>[" . count($ranSystemTree['requirements']) . "]</fg=blue> routes.\nTrying to save configs..<info>");
 
             // prepare symfony parameters format
-            $roleAccessNamesGuiData = Yaml::dump(['parameters' => ['ran_gui' => $roleAccessNamesGui]], 6, 2);
-            $roleAccessListSystemData = Yaml::dump(['parameters' => ['ran_sys' => $roleAccessListSystem]], 5, 2);
+            $ranGuiData = Yaml::dump(['parameters' => ['ran_gui' => $ranGuiTree]], 6, 2);
+            $ranSystemData = Yaml::dump(['parameters' => ['ran_sys' => $ranSystemTree]], 5, 2);
 
             // setup save path
             $savePath = $this->getContainer()->getParameter('ran')['generator']['output'];
 
             if (file_exists($savePath)) {
-                $err = file_put_contents($savePath . '/role_access_names_gui.yml', $roleAccessNamesGuiData);
-                $err = $err && file_put_contents($savePath . '/role_access_names_system.yml', $roleAccessListSystemData);
+                $err = file_put_contents($savePath . '/role_access_names_gui.yml', $ranGuiData);
+                $err = $err && file_put_contents($savePath . '/role_access_names_system.yml', $ranSystemData);
             } else {
                 $output->writeln("<info>Output folder:<info> <fg=red>[" . $savePath . "]</fg=red> was not found");
                 $err = true;
