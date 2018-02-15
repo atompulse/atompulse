@@ -84,7 +84,7 @@ Documentation
             source: "%kernel.root_dir%/../src/bundles/VendorName/AppBundle/Resources/config/ran/ui_tree.yml"
             param: ran_ui_tree
 
-    *   security override - special roles which will override the RAN authorization system
+    *   security override  -  special roles which will override the RAN authorization system
 
         security:
             override: [ROLE_SUPER_ADMIN]
