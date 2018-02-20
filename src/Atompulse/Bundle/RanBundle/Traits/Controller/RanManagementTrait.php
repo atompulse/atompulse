@@ -34,6 +34,9 @@ trait RanManagementTrait
                 'isFolder' => true,
                 'children' => []
             ];
+
+            $groupEntry = isset($collectionSettings['group']) ? 'RAN_'.$collectionSettings['group'].'_ALL' : false;
+
             // check for groups
             if (isset($collectionSettings['groups']) && count($collectionSettings['groups']) > 0) {
                 foreach ($collectionSettings['groups'] as $permissionGroup => $groupSettings) {
@@ -41,8 +44,8 @@ trait RanManagementTrait
                     $collectionItem['children'][] = $this->buildGroupItem($permissionGroup, $groupSettings, $ranGui);
                 }
             } // check group
-            elseif (isset($collectionSettings['group'])) {
-                $ranUiGroupData = $ranGui[$collectionSettings['group']];
+            elseif ($groupEntry) {
+                $ranUiGroupData = $ranGui[$groupEntry];
                 $collectionItem['ran_all'] = $ranUiGroupData['role'];
                 // check for individual permissions in this group
                 if (count($ranUiGroupData['roles'])) {
