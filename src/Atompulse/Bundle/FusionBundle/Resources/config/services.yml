@@ -17,6 +17,7 @@ services:
       - { name: kernel.event_listener, event: kernel.exception,   method: onKernelException, priority: 200 }
 
   fusion.data.manager:
+    public: true
     class:      Atompulse\Bundle\FusionBundle\Services\FusionDataManager
     calls:
       - [setContainer, ['@service_container']]
@@ -38,6 +39,7 @@ services:
 
   # refiner handler
   fusion.assets.refiner:
+    public: true
     class:      Atompulse\Bundle\FusionBundle\Assets\Refiner\SimpleRefiner
 
   # compiled loader handler
@@ -48,6 +50,7 @@ services:
 
   # async loader handler
   fusion.assets.async.loader:
+    public: true
     class:      Atompulse\Bundle\FusionBundle\Assets\Loader\AsyncLoader
     calls:
       - [setContainer, ['@service_container']]
