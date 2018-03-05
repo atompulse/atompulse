@@ -87,12 +87,12 @@ angular.module('Web.Components')
                     controller: ["$scope", "$uibModalInstance",
                         function ($scope, $uibModalInstance) {
                             $scope.onOkAction = function () {
-                                $uibModalInstance.close();
+                                $uibModalInstance.close(true);
                                 // Call confirm function
                                 _onConfirm.action.apply(_onConfirm.action, _onConfirm.params);
                             };
                             $scope.onCancelAction = function () {
-                                $uibModalInstance.dismiss('cancel');
+                                $uibModalInstance.close(false);
                                 // If there is a cancel action then call it
                                 if (_onCancel.action) {
                                     _onCancel.action.apply(_onCancel.action, _onCancel.params);
