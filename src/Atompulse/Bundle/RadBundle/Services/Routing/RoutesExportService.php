@@ -19,16 +19,16 @@ final class RoutesExportService
     const CACHE_FOLDER = 'rad-bundle';
 
     /** @var string */
-    private $cacheDir;
+    protected $cacheDir = null;
 
     /** @var \FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractor */
-    private $extractor;
+    protected $extractor = null;
 
     /** @var \Atompulse\Bundle\FusionBundle\Services\FusionDataManager */
-    private $fusionDataManager;
+    protected $fusionDataManager = null;
 
     /** @var \Symfony\Component\HttpFoundation\Request */
-    private $request;
+    protected $request = null;
 
     /**
      * RoutesExportService constructor.
@@ -58,7 +58,7 @@ final class RoutesExportService
      *
      * @return string
      */
-    private function getCacheFile(array $context): string
+    protected function getCacheFile(array $context): string
     {
         $cachePath = $this->cacheDir . DIRECTORY_SEPARATOR . self::CACHE_FOLDER;
 
@@ -76,7 +76,7 @@ final class RoutesExportService
      *
      * @return array|mixed
      */
-    private function getExposedRoutes()
+    protected function getExposedRoutes()
     {
         $context = [
             'base_url' => $this->extractor->getBaseUrl(),
@@ -96,7 +96,7 @@ final class RoutesExportService
 
         $routing = [
             'context' => $context,
-            'routes'  => $this->getRoutes(),
+            'routes'  => $this->prepareRoutes(),
         ];
 
         $cache->write(serialize($routing), $this->extractor->getResources());
@@ -109,7 +109,7 @@ final class RoutesExportService
      *
      * @return array
      */
-    private function prepareRoutes(): array
+    protected function prepareRoutes(): array
     {
         $preparedRoutes = [];
 
