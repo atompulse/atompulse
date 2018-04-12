@@ -15,24 +15,35 @@ angular.module('Web.Components')
         function () {
             var comFormChange = {
                 restrict: 'A',
+                scope: {
+                    comFormModel: '=',
+                    comFormChange: '='
+                },
                 link: function (scope, element, attrs)
                 {
-                    var model = scope.$eval(attrs.comFormModel);
-                    var callback = scope.$eval(attrs.comFormChange);
+                    var model = scope.comFormModel,
+                        listener = scope.comFormChange;
 
-                    if (typeof(model) == 'undefined') {
+                    if (typeof(model) === 'undefined') {
                         throw 'comFormChange: model ['+attrs.comFormModel+'] is undefined';
                     }
-                    if (typeof(callback) == 'undefined') {
-                        throw 'comFormChange: callback ['+attrs.comFormChange+'] is undefined';
+                    if (typeof(listener) === 'undefined') {
+                        throw 'comFormChange: listener ['+attrs.comFormChange+'] is undefined';
                     }
+
                     // add a watcher for each of the model fields
-                    angular.forEach(model, function(value, modelField) {
-                        var expr = attrs.comFormModel+'.'+modelField;
+                    angular.forEach(model, function(value, modelField)
+                    {
+                        if (_.isFunction(value) || modelField === '$$hashKey') {
+                            return;
+                        }
+
+                        var expr = 'comFormModel.'+modelField;
+
                         scope.$watch(expr, function(newVal, oldVal, scope) {
-                            // if value is changed then launch the callback
+                            // if value is changed then notify the listener
                             if (newVal !== oldVal) {
-                                callback.call(callback, modelField, newVal, oldVal);
+                                listener.call(listener, modelField, newVal, oldVal);
                             }
                         });
                     });
@@ -41,4 +52,3 @@ angular.module('Web.Components')
 
             return comFormChange;
     }]);
-
